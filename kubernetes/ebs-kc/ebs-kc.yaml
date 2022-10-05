@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: appserver-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: disaster-recovery
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appserver
+spec:
+  containers:
+  - name: appserver
+    image: busybox
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo Disaster Recovery in EKS with EBS at $(date -u) >> /data/out.txt; sleep 10; done"]
+    volumeMounts:
+    - name: persistent-storage
+      mountPath: /data
+  volumes:
+  - name: persistent-storage
+    persistentVolumeClaim:
+      claimName: appserver-claim   # <---- this name is what will be used to restore the PVC

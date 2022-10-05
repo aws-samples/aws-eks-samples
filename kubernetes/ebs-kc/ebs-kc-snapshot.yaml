@@ -1,0 +1,11 @@
+
+# Create Snapshot
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: ebs-volume-snapshot
+spec:
+  volumeSnapshotClassName: csi-aws-vsc
+  source:
+    persistentVolumeClaimName: appserver-claim    # <----- name must match claimName of Pod
+ 

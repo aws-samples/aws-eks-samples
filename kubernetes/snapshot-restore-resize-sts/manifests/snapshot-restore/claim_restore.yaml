@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-data-cassandra-0 # # must use the same name of old StatefulSet PVC for binding pods to its respective PVs
+  labels:
+    app: cassandra  
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 2Gi
+  dataSource:
+    name: cassandra-data-snapshot-0 # Reference to the snapshot created
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-data-cassandra-1 # name of old pvc - PVC_TEMPLATE_NAME-STATEFULSET_NAME-REPLICA_INDEX
+  labels:
+    app: cassandra    
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 2Gi
+  dataSource:
+    name: cassandra-data-snapshot-1
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+---     
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-data-cassandra-2  # name of old pvc - PVC_TEMPLATE_NAME-STATEFULSET_NAME-REPLICA_INDEX
+  labels:
+    app: cassandra    
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 2Gi
+  dataSource:
+    name: cassandra-data-snapshot-2
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io

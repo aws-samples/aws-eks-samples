@@ -1,0 +1,33 @@
+# Restore a Persistent Volume Claim from the Volume snapshot
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: appserver-recovery-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: disaster-recovery
+  resources:
+    requests:
+      storage: 2Gi
+  dataSource:
+    name: ebs-volume-snapshot  # <----- name must match the snapshot name 
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appserver-recovery
+spec:
+  containers:
+  - name: appserver
+    image: busybox
+    command: ["/bin/sh","-c","tail -f /data/out.txt"]
+    volumeMounts:
+    - name: persistent-storage
+      mountPath: /data
+  volumes:
+  - name: persistent-storage
+    persistentVolumeClaim:
+      claimName: appserver-recovery-claim # <---- must match the restored Persistent Volume Claim

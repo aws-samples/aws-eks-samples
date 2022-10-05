@@ -1,0 +1,33 @@
+# An example of ClusterConfig object using Managed Nodes
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ${CLUSTER_NAME}
+  region: ${region}
+
+managedNodeGroups:
+  - name: managed-existing-iam-role
+    instanceType: m5.large
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    ssh: # enable SSH using SSM. This won't work for custom AMI
+      enableSsm: true 
+    iam:
+      instanceRoleARN: "arn:aws:iam::XXXXXXXXXX:role/role-name"
+
+# To create an unmanaged nodegroup, you will need to specify instanceProfileARN in the manifest as shown below. 
+nodeGroups:
+  - name: unmanaged-existing-iam-role
+    labels: { role: workers }
+    instanceType: m5.large
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    ssh:
+        enableSsm: true
+    iam:
+      instanceProfileARN: "arn:aws:iam::XXXXXXXXX:instance-profile/role-name"
+      instanceRoleARN: "arn:aws:iam::XXXXXXXXX:role/NodeInstanceRole"
