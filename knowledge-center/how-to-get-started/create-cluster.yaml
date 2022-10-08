@@ -1,0 +1,27 @@
+# An example of ClusterConfig object using Managed Nodes
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ${CLUSTER_NAME}
+  region: ${region}
+
+managedNodeGroups:
+  - name: managed
+    instanceType: m5.large
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    ssh: # enable SSH using SSM. This won't work for custom AMI
+      enableSsm: true 
+
+nodeGroups:
+  - name: unmanaged
+    labels: { role: workers }
+    instanceType: m5.large
+    minSize: 2
+    desiredCapacity: 3
+    maxSize: 4
+    ssh:
+        enableSsm: true
