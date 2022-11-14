@@ -1,0 +1,55 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: ${CLUSTER_NAME}
+  region: ${REGION}
+
+nodeGroups:
+  - name: ubuntu-self-ng
+    instanceType: t3.medium
+    amiFamily: Ubuntu2004
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 4
+    ssh: # enable SSH using SSM. This won't work for custom AMI
+      enableSsm: true 
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      MAX_POD_VALUE="17"                     
+      NODE_LABELS="type=selfmanaged"         
+      CLUSTER_NAME=${CLUSTER_NAME}           
+      API_SERVER_URL=${API_SERVER_URL}       
+      B64_CLUSTER_CA=${B64_CLUSTER_CA}       
+      source /var/lib/cloud/scripts/eksctl/bootstrap.helper.sh
+      # Note "--node-labels=${NODE_LABELS}" needs the above helper sourced to work, otherwise will have to be defined manually.
+      /etc/eks/bootstrap.sh ${CLUSTER_NAME} \
+        --container-runtime containerd \
+        --kubelet-extra-args "--node-labels=${NODE_LABELS} --max-pods=${MAX_POD_VALUE}" \
+        --apiserver-endpoint ${API_SERVER_URL} --b64-cluster-ca ${B64_CLUSTER_CA} \
+        --dns-cluster-ip ${DNS_CLUSTER_IP} \
+        --use-max-pods false
+
+managedNodeGroups:
+  - name: ubuntu-man-ng
+    instanceType: t3.medium
+    ami: ami-0feb1a4a4e739ea4e   # from https://cloud-images.ubuntu.com/aws-eks/
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 2
+    # ssh: # enable SSH using SSM. This won't work for custom AMI
+    #   enableSsm: true 
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      MAX_POD_VALUE="17"                      
+      NODE_LABELS="type=managed"         
+      CLUSTER_NAME=${CLUSTER_NAME}           
+      API_SERVER_URL=${API_SERVER_URL}       
+      B64_CLUSTER_CA=${B64_CLUSTER_CA}       
+      source /var/lib/cloud/scripts/eksctl/bootstrap.helper.sh
+      # Note "--node-labels=${NODE_LABELS}" needs the above helper sourced to work, otherwise will have to be defined manually.
+      /etc/eks/bootstrap.sh ${CLUSTER_NAME} \
+        --container-runtime containerd \
+        --kubelet-extra-args "--node-labels=${NODE_LABELS} --max-pods=${MAX_POD_VALUE}" \
+        --apiserver-endpoint ${API_SERVER_URL} --b64-cluster-ca ${B64_CLUSTER_CA} \
+        --dns-cluster-ip ${DNS_CLUSTER_IP} \
+        --use-max-pods false
