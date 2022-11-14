@@ -1,6 +1,8 @@
 
 # Multi-Account Disaster recovery of EBS volume mounted as PVC in AWS EKS Cluster
 
+A tutorial on how to Backup and Restore PVC EBS Volume between EKS Clusters in different AWS Accounts.
+
 ```
 Source Account: EKS Cluster 1.21 (In-tree) ----> Destination Account: EKS Cluster 1.20 (CSI driver)
 ```
@@ -184,7 +186,6 @@ aws ec2 create-volume \
 7. Deploy a new persistent deployment in the cluster that has EBS CSI driver for managing EBS volumes
 
 ```
-
 kubectl apply -f static-provisioning/manifests-encrypted
 ```
 
@@ -219,4 +220,19 @@ Events:
 ```
 
 
+# Clean Up
 
+
+- In EKS Cluster in Account B, delete the workload
+
+```
+kubectl delete -f static-provisioning/manifests-encrypted
+```
+
+
+- In EKS Cluster in Account A, delete the workload
+
+```
+kubectl delete -f pod-ebs-vol-encrypted.yml
+
+```
