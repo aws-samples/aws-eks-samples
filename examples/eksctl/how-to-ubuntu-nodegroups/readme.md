@@ -38,7 +38,7 @@ B64_CLUSTER_CA=$(aws eks describe-cluster --region $REGION --name $CLUSTER_NAME 
 
 ```
 
-Note: Replace cluster_name with your cluster's name and region_code with your AWS region. Calculate the MAX_POD_VALUE based on your [instance type](https://docs.aws.amazon.com/eks/latest/userguide/choosing-instance-type.html#determine-max-pods)
+Note: Replace `cluster_name` with your cluster's name and `region_code` with your AWS region. Calculate the `MAX_POD_VALUE` based on your [instance type](https://docs.aws.amazon.com/eks/latest/userguide/choosing-instance-type.html#determine-max-pods)
 
 
 ## Verify the parameters
@@ -113,7 +113,9 @@ managedNodeGroups:
 EOF
 ```
 
-## create the node groups - the config file will create 2 node groups with 1 worker node each
+## Create the node groups. 
+
+Note: the config file will create 2 node groups with 1 worker node each
 
 `eksctl create nodegroup -f ubuntu-nodegroups.yml`    
 
