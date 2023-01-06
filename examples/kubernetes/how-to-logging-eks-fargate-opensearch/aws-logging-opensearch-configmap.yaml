@@ -1,0 +1,17 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: aws-logging
+  namespace: aws-observability
+data:
+  output.conf: |
+    [OUTPUT]
+      Name  es
+      Match *
+      Host  vpc-eksworkshop-jc3433jyvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com
+      Port  443
+      Index my_index_vpc
+      Type  doc
+      AWS_Auth On
+      AWS_Region eu-west-1
+      tls   On
