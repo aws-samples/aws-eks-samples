@@ -74,11 +74,9 @@ cat ./es_domain.json | envsubst > ./es_domain_edited.json
 ```
 aws opensearch create-domain \
   --cli-input-json  file://es_domain_edited.json
-```
 
+# or Create the AWS OpenSearch cluster if vpc access
 
-### or Create the AWS OpenSearch cluster if vpc access
-```
 aws opensearch create-domain \
   --cli-input-json  file://es_domain_vpc_edited.json
 ```
@@ -112,20 +110,23 @@ or execute command below for AWS OpenSearch with Public Access
 export ES_ENDPOINT=$(aws opensearch describe-domain --domain-name ${ES_DOMAIN_NAME} --output text --query "DomainStatus.Endpoint") 
 ```
 
-10. Attach policy to pod execution role 
+10.  Attach policy to pod execution role 
 ```
 aws iam attach-role-policy \
   --policy-arn arn:aws:iam::520817024429:policy/eks-fargate-logging-policy \
   --role-name ${FP_PROFILE}
 ```
 
-11. Test connectivity to the AWS OpenSearch. If OpenSearch is VPC Access, test from an EC2 instance in the same VPC and subnets as the Fargate Pods or EKS Subnets.
+11.  Test connectivity to the AWS OpenSearch. If OpenSearch is VPC Access, test from an EC2 instance in the same VPC and subnets as the Fargate Pods or EKS Subnets.
 ```  
 curl https://{ES_ENDPOINT} -k
-output: Unauthorized
+
 ```
 
-12.  Update the Elasticsearch internal database with the commands below:
+Expected output: Unauthorized
+
+
+12.   Update the Elasticsearch internal database with the commands below:
 - Part 1
 ```
 curl -sS -u "${ES_DOMAIN_USER}:${ES_DOMAIN_PASSWORD}" \
@@ -195,9 +196,11 @@ data:
       tls   On
 EOF
 ```
+
 or for OpenSearch version 2.3 - copy and paste command below:
+
 ```
-cat << EOF > aws-logging-opensearch-configmap.yaml
+cat << EOF > aws-logging-opensearch-configmap2.3.yaml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -293,8 +296,8 @@ output:
   
 17. To search the index and view data in AWS OpenSearch
     
-- Navigate to OpenSearch Dashboard >> Stack Management >> Index patterns >> Create index pattern
-- Define an index pattern >> Index pattern name >> [the new index name will appear] >> Next >> Configure settings >> from dropdown select "@timestamp" >> click "Create index pattern" button
+- Navigate to `OpenSearch Dashboard >> Stack Management >> Index patterns >> Create index pattern`
+- Click `Define an index pattern >> Index pattern name >> [the new index name will appear] >> Next >> Configure settings >> from dropdown select "@timestamp" >> click "Create index pattern"` button
 
 
 # Clean up
@@ -306,12 +309,14 @@ aws opensearch delete-domain \
 ```
 
 ## Clear the environment variables
+```
 unset ES_DOMAIN_NAME
 unset ES_VERSION
 unset ES_DOMAIN_USER
 unset ES_DOMAIN_PASSWORD
 unset FLUENTBIT_ROLE
 unset ES_ENDPOINT
+```
 
 ## Delete the Pods
 ```
