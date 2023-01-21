@@ -28,10 +28,13 @@ The command above will create an EKS Cluster in a VPC. The VPC details is also u
 ```
 # name of our Amazon OpenSearch cluster
 export ES_DOMAIN_NAME="eksworkshop"
+
 # Elasticsearch version 1.3 or 2.3
 export ES_VERSION="OpenSearch_1.3"
+
 # OpenSearch Dashboards admin user
 export ES_DOMAIN_USER="eksworkshop"
+
 export AWS_REGION="eu-west-1"
 export ACCOUNT_ID=111111222222
 export ES_DOMAIN_PASSWORD="XXXXXXXXX"
@@ -42,13 +45,14 @@ export SECURITY_GROUP_ID="sg-XXXXXXXXXX"
 ```
 
 2. Confirm all the variable above
+```
 echo ES_DOMAIN_USER: $ES_DOMAIN_USER
 echo ES_DOMAIN_PASSWORD: $ES_DOMAIN_PASSWORD
 echo ES_VERSION: $ES_VERSION
 echo ES_DOMAIN_NAME: $ES_DOMAIN_NAME
 echo AWS_REGION: $AWS_REGION
 echo ACCOUNT_ID: $ACCOUNT_ID
-
+```
 
 3. Clone the repo
 
@@ -91,8 +95,12 @@ if [ $(aws opensearch describe-domain --domain-name ${ES_DOMAIN_NAME} --query 'D
 fi
 ```
 
-7. Create IAM policy
+7. Download the OpenSearch IAM policy to your computer and Create IAM policy
+```
+curl -O https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/amazon-elasticsearch/permissions.json
+
 aws iam create-policy --policy-name eks-fargate-logging-policy --policy-document file://permissions.json
+```
 
 8. From AWS EKS console, get the ARN of the Fargate profile and create additional environment variable
 ```
@@ -187,7 +195,7 @@ data:
     [OUTPUT]
       Name  es
       Match *
-      Host  vpc-eksworkshop-jc3433jyvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com 
+      Host  vpc-eksworkshop-abcdefg123456yvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com 
       Port  443
       Index my_index
       Type  doc
@@ -211,7 +219,7 @@ data:
     [OUTPUT]
       Name  es
       Match *
-      Host  vpc-eksworkshop-jc3433jyvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com 
+      Host  vpc-eksworkshop-abcdefg123456yvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com 
       Port  443
       Index my_index
       Type  _doc
@@ -223,8 +231,8 @@ EOF
 ```
 
 
-Note: Remember to change vpc-eksworkshop-jc3433jyvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com, my_index and eu-west-1 with your own values
-For example change vpc-eksworkshop-jc3433jyvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com with the output of the command below:
+Note: Remember to change `vpc-eksworkshop-abcdefg123456yvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com`, `my_index` and `eu-west-1` with your own values
+For example change `vpc-eksworkshop-abcdefg123456yvzop7h6awv2et6ro2i.eu-west-1.es.amazonaws.com` with the output of the command below:
 ```
 echo ${ES_ENDPOINT}
 ```
