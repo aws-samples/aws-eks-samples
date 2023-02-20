@@ -1,0 +1,13 @@
+# When this annotation is present, the AWS SDK for Python (Boto3) will automatically use the IAM role's temporary security credentials to authenticate API requests.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ec2-lister
+  namespace: serverless  
+spec:
+  serviceAccountName: aws-sdk
+  containers:
+  - name: ec2-lister
+    image: berry2012/boto3:1.9.220
+    command: ["python"]
+    args: ["-c", "import boto3; ec2 = boto3.client('ec2', region_name='eu-west-1'); print([instance['InstanceId'] for instance in ec2.describe_instances()['Reservations'][0]['Instances']])"]
