@@ -65,6 +65,7 @@ Replace `my-cluster` with your EKS cluster name. Replace `my-service-account`, `
 
 
 *4b. Using `Kubectl` and `AWS CLI`*
+
 - Create Service Account
 ```
 kubectl create -f service-account.yaml
@@ -113,14 +114,21 @@ Replace service account `aws-sdk` with the Kubernetes service account that you w
 kubectl annotate serviceaccount -n $namespace $service_account eks.amazonaws.com/role-arn=arn:aws:iam::$account_id:role/my-role
 ```
 
-1. Deploy the sample Pod running a container built with Python AWS SDK
+5. Deploy the sample Pod running a container built with Python AWS SDK
    
 ```
-kubectl logs pod/ec2-lister -n serverless
-
+kubectl create -f ec2-lister.yml
 ```
 
-Output:
+*The example pod will list the first EC2 instance in your account*
+
+6. Verify the result
+
+```
+kubectl logs pod/ec2-lister -n serverless
+```
+
+Example Output:
 ```
 ['i-0abcded123321de513b']
 ```
