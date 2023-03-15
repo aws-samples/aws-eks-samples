@@ -169,9 +169,8 @@ these Hints.</span></p>
 minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font:minor-bidi">4. Applying these Hints can be skipped by kube-proxy at times where there are any pod assignment constraints such as Affinity/Anti-affinity etc. where the redistribution of endpoints cannot be made.<br></span></p>
     <p class="MsoNormal"><span style="font-family:
 &quot;Calibri&quot;,sans-serif;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
-minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font:minor-bidi"><br></span>There are some Safeguards and Constraints under which kube-proxy decides skip these topology hints to implements</p>
-    <p class="MsoNormal">Safeguards: <a href="https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards">https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards</a>
-    <p class="MsoNormal">Constraints: <a href="https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints">https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints</a>
+minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font:minor-bidi"><br></span>There are some Safeguards and Constraints under which kube-proxy decides skip these topology hints to implements<br>
+[Safeguards](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards) and Constraints[2](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints)</p>
 
 </span>
     </p>
@@ -211,3 +210,11 @@ mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo
     <p>6. From the above output you can verify whether the traffic is being forwarded to the pods from same Az </p>
     <p>7. Take the nodeName from the output, use the following command which will return you the zone of that node and you can verify if it aligns with the zone in which your test pod is deployed <br></p><pre> kubectl get nodes &lt;node-name&gt;&nbsp; -L topology.kubernetes.io/zone<br></pre>
     <p></p>
+
+[Safeguards](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards)
+
+##References
+[1] Safeguards
+https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards
+[2] Constraints
+https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards
