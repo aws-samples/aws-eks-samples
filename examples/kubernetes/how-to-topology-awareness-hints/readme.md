@@ -201,7 +201,7 @@ mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo
    
    <p></p>
    
-8. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained [above](https://github.com/Manyamteja/aws-eks-se-samples/edit/main/examples/kubernetes/how-to-topology-awareness-hints/readme.md#example)</p> <p>
+8. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained [above](https://github.com/Manyamteja/aws-eks-se-samples/tree/main/examples/kubernetes/how-to-topology-awareness-hints#for-example)</p> <p>
    
    
 
