@@ -182,29 +182,34 @@ mso-bidi-language:AR-SA">1. Create an EKS cluster and worker nodes with nodes ac
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
 mso-bidi-language:AR-SA">2. Clone into this repository</span></p><pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA">git clone <br></span></pre>
+mso-bidi-language:AR-SA">git clone https://github.com/aws-samples/aws-eks-se-samples.git <br></span></pre>
+<p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
+&quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
+mso-bidi-language:AR-SA">3. Change the directory to "how-to-topology-awareness-hints" folder</span></p><pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
+&quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
+mso-bidi-language:AR-SA">cd aws-eks-se-samples/examples/kubernetes/how-to-topology-awareness-hints<br></span></pre>
     <p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA">3. Apply the manifests in this repository, this will create the namespace, deployment using the Nginx image and a service exposing the deployment</span></p>
+mso-bidi-language:AR-SA">4. Apply the manifests in this repository, this will create the namespace, deployment using the Nginx image and a service exposing the deployment</span></p>
     <pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
 mso-bidi-language:AR-SA">kubectl apply -f .<span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo-nginx" is deployed as service type ClusterIP adding the annotation
+mso-bidi-language:AR-SA"><br></span></pre>5. Note that the service "service-demo-nginx" is deployed as service type ClusterIP adding the annotation
     <p></p><pre> service.kubernetes.io/topology-aware-hints: auto</pre>
     <p></p><pre>#you can use the below command to verify the service<br></span>kubectl get service service-demo-nginx -n demo -o yaml</pre>
     <p></p>
-    <p>5. Verify if the Hints are being populated inside the endpoint slice.</p><pre>kubectl get endpointslices.discovery.k8s.io &lt;endpoint-name&gt; -n demo -oyaml</pre>
-    <p>6. You will be able to see hints being populated as below.</p>
+    <p>6. Verify if the Hints are being populated inside the endpoint slice.</p><pre>kubectl get endpointslices.discovery.k8s.io &lt;endpoint-name&gt; -n demo -oyaml</pre>
+    <p>7. You will be able to see hints being populated as below.</p>
     <p></p><br><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&nbsp;&nbsp;&nbsp; zone: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uid: 1df689f2-65db-47a9-90c7-0dd4b4d0a544<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; namespace: demo<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name: demo-nginx-deployment-7fbc66c54b-mkf4k<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; kind: Pod<br>&nbsp;&nbsp;&nbsp; targetRef:<br>&nbsp;&nbsp;&nbsp; nodeName: ip-10-0-12-200.eu-west-1.compute.internal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - name: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; forZones:<br>&nbsp;&nbsp;&nbsp; hints:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; terminating: false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; serving: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ready: true<br>&nbsp;&nbsp;&nbsp; conditions:<br>&nbsp;&nbsp;&nbsp; - 10.0.2.150<br>&nbsp; - addresses:<br>&nbsp; endpoints:<br>&nbsp; apiVersion: discovery.k8s.io/v1<br>- addressType: IPv4<code class="language-yaml" data-lang="yaml"><span style="display:flex"><span><span style="color:green;font-weight:700"></span></span></span><span style="display:flex"><span><span style="color:#bbb"><br></span></span></span></code></pre>
-    <p>7. Scale the deployment to 4 replicas and then check for the hints in endpoint slices<br></p><pre>kubectl -n demo scale deployments demo-nginx-deployment --replicas=4</pre>
+    <p>8. Scale the deployment to 4 replicas and then check for the hints in endpoint slices<br></p><pre>kubectl -n demo scale deployments demo-nginx-deployment --replicas=4</pre>
    
    
-<p>  8. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained 
+<p>  9. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained 
 in aforementioned example.
    
    
-<p>9. Verify the kube-proxy pod logs if it says kube-proxy skipped applying Hints</p><pre>kubectl -n kube-system logs kube-proxy-xxxx<br></pre><pre>I0228 11:05:14.404568&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:853] "Syncing iptables rules"<br>I0228 11:05:14.431451&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 topology.go:168] "Skipping topology aware endpoint filtering since one or more endpoints is missing a zone hint"<br>I0228 11:05:14.431530&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:1464] "Reloading service iptables data" numServices=12 numEndpoints=17 numFilterChains=4 numFilterRules=4 numNATChains=32 numNATRules=67<br>I0228 11:05:14.435518&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:820] "SyncProxyRules complete" elapsed="31.008873ms"</pre>
+<p>10. Verify the kube-proxy pod logs if it says kube-proxy skipped applying Hints</p><pre>kubectl -n kube-system logs kube-proxy-xxxx<br></pre><pre>I0228 11:05:14.404568&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:853] "Syncing iptables rules"<br>I0228 11:05:14.431451&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 topology.go:168] "Skipping topology aware endpoint filtering since one or more endpoints is missing a zone hint"<br>I0228 11:05:14.431530&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:1464] "Reloading service iptables data" numServices=12 numEndpoints=17 numFilterChains=4 numFilterRules=4 numNATChains=32 numNATRules=67<br>I0228 11:05:14.435518&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:820] "SyncProxyRules complete" elapsed="31.008873ms"</pre>
     <h1>Test:</h1>
     <p>1. In a working scenario, where the Hints are populated inside the endpointSlice.</p>
     <p>2. Deploy a test pod in all the availability zones inside your cluster to curl the service and see to which pod the traffic is being directed to.</p>
