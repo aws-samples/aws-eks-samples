@@ -170,7 +170,7 @@ minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font
 
   <p></p>    
 
-There are some Safeguards and Constraints under which kube-proxy decides skip these topology hints to implements. Refer to [Safeguards](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards) [Constraints](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints)</p>
+There are some Safeguards[[1]](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards) and Constraints[[2]](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints) under which kube-proxy decides to skip these topology hints to implements. </p>
 
 </span>
     </p>
@@ -199,13 +199,11 @@ mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo
     <p></p><br><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&nbsp;&nbsp;&nbsp; zone: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uid: 1df689f2-65db-47a9-90c7-0dd4b4d0a544<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; namespace: demo<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name: demo-nginx-deployment-7fbc66c54b-mkf4k<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; kind: Pod<br>&nbsp;&nbsp;&nbsp; targetRef:<br>&nbsp;&nbsp;&nbsp; nodeName: ip-10-0-12-200.eu-west-1.compute.internal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - name: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; forZones:<br>&nbsp;&nbsp;&nbsp; hints:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; terminating: false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; serving: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ready: true<br>&nbsp;&nbsp;&nbsp; conditions:<br>&nbsp;&nbsp;&nbsp; - 10.0.2.150<br>&nbsp; - addresses:<br>&nbsp; endpoints:<br>&nbsp; apiVersion: discovery.k8s.io/v1<br>- addressType: IPv4<code class="language-yaml" data-lang="yaml"><span style="display:flex"><span><span style="color:green;font-weight:700"></span></span></span><span style="display:flex"><span><span style="color:#bbb"><br></span></span></span></code></pre>
     <p>7. Scale the deployment to 4 replicas and then check for the hints in endpoint slices<br></p><pre>kubectl -n demo scale deployments demo-nginx-deployment --replicas=4</pre>
    
-   <p></p>
    
-8. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained [above](https://github.com/Manyamteja/aws-eks-se-samples/tree/main/examples/kubernetes/how-to-topology-awareness-hints#for-example)</p> <p>
+<p>  8. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained 
+in aforementioned example.
    
    
-
-   <p></p>
 <p>9. Verify the kube-proxy pod logs if it says kube-proxy skipped applying Hints</p><pre>kubectl -n kube-system logs kube-proxy-xxxx<br></pre><pre>I0228 11:05:14.404568&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:853] "Syncing iptables rules"<br>I0228 11:05:14.431451&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 topology.go:168] "Skipping topology aware endpoint filtering since one or more endpoints is missing a zone hint"<br>I0228 11:05:14.431530&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:1464] "Reloading service iptables data" numServices=12 numEndpoints=17 numFilterChains=4 numFilterRules=4 numNATChains=32 numNATRules=67<br>I0228 11:05:14.435518&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:820] "SyncProxyRules complete" elapsed="31.008873ms"</pre>
     <h1>Test:</h1>
     <p>1. In a working scenario, where the Hints are populated inside the endpointSlice.</p>
@@ -221,7 +219,5 @@ mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo
 </span>
     </p>
     <h1>References:<br></h1>
-[1] Safeguards<br>
-https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards<br>
-[2] Constraints<br>
-https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards
+[1] https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards<br>
+[2] https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints
