@@ -6,6 +6,7 @@
 
 - EKS cluster
 - kubectl 
+- IMDS access
 
 ---
 
@@ -17,6 +18,14 @@ When troubleshooting issues related to intermittent connectivity in a cluster th
 
 ## Getting Started
 
+To keep analysis targetted, first try to figure out if the connectivity issue happens for a particular worker node, set of worker nodes or randomly anywhere across the cluster. Follow the sections below to work with either of the mentineod scenarios. 
+
+
+- Particular Worker Node
+
+- Set of Worker Nodes
+
+- Randomly any Worker Node
 
 
 ```
