@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  datree:
+  k8sPolicyCheckv1:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
