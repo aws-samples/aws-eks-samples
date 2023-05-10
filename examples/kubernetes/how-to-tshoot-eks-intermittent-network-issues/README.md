@@ -4,10 +4,20 @@
 
 ## Prerequisites
 
-- EKS cluster 
+- EKS cluster
+- kubectl 
 
+---
 
 ## Usage
+
+When troubleshooting issues related to intermittent connectivity in a cluster that are difficult to reproduce, you can setup a pod that runs tcpdump and streams the packet captures to an S3 bucket for storage and retrieval. This allows users to look into packet captures around the time frame of an issue and analyze the flow of communication to investigate the cause of connectivity drops. 
+
+--- 
+
+## Getting Started
+
+
 
 ```
 apiVersion: apps/v1
