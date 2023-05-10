@@ -23,6 +23,7 @@ To keep analysis targetted, first try to figure out if the connectivity issue ha
 
 
 - Particular Worker Node
+
 If you've identified that the issue appears often on a particular worker node, then use nodeSelector to ensure that you capture packets from that particular node.  
 To setup captures, the deployment manifest would need to be edited to add the value for kubernetes.io/hostname to reflect the node name that you want the pod to be scheduled on. 
 
