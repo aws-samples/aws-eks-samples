@@ -18,7 +18,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   k8sPolicyCheckv1:
@@ -36,7 +36,6 @@ jobs:
           # See https://hub.datree.io/setup/account-token#1-get-your-account-token-from-the-dashboard to acquire your token.
           DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }}
         with:
-          DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }}
           # Add the path to the configuration file/s that you would like to test.
           # See https://github.com/datreeio/action-datree#usage for all available options.
           path: '**/**/*/*.yaml'
@@ -62,13 +61,12 @@ jobs:
           # See https://hub.datree.io/setup/account-token#1-get-your-account-token-from-the-dashboard to acquire your token.
           DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }}
         with:
-          DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }}
           # Add the path to the configuration file/s that you would like to test.
           # See https://github.com/datreeio/action-datree#usage for all available options.
           path: '**/**/*/*.yml'
           # Setting a SARIF output will generate a file named "datree.sarif" containing your test results
           cliArguments: "-o sarif"
-#       - name: Upload result to GitHub Code Scanning
-#         uses: github/codeql-action/upload-sarif@v2
-#         with:
-#           sarif_file: datree.sarif
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: datree.sarif
