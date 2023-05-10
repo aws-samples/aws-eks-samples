@@ -19,32 +19,13 @@ on:
     
 env:
   DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }} 
+  
+permissions:
+  contents: read # for actions/checkout to fetch code
+  security-events: write # for github/codeql-action/upload-sarif to upload SARIF results    
 
 jobs:
-  k8sPolicyCheck:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results  
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Run Datree Policy Check
-        uses: datreeio/action-datree@main
-        with:
-          path: '**/*.yaml'
-          cliArguments: '--only-k8s-files'
-          
-      - name: Upload analysis results to GitHub
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: datree.sarif
-          wait-for-processing: true          
-          
-
-  k8sPolicyCheckv1:
+  k8sPolicyCheckv_yaml:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
@@ -53,11 +34,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Datree policy check
         continue-on-error: true
-        uses: datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a
-        env:
-          # In order to use the Datree action you will need to have a Datree token.
-          # See https://hub.datree.io/setup/account-token#1-get-your-account-token-from-the-dashboard to acquire your token.
-          DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }}
+        uses: datreeio/action-datree@main
         with:
           # Add the path to the configuration file/s that you would like to test.
           # See https://github.com/datreeio/action-datree#usage for all available options.
@@ -69,7 +46,7 @@ jobs:
         with:
           sarif_file: datree.sarif
 
-  k8sPolicyCheckv2:
+  k8sPolicyCheckv_yml:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
@@ -79,10 +56,6 @@ jobs:
       - name: Run Datree policy check
         continue-on-error: true
         uses: datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a
-        env:
-          # In order to use the Datree action you will need to have a Datree token.
-          # See https://hub.datree.io/setup/account-token#1-get-your-account-token-from-the-dashboard to acquire your token.
-          DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }}
         with:
           # Add the path to the configuration file/s that you would like to test.
           # See https://github.com/datreeio/action-datree#usage for all available options.
