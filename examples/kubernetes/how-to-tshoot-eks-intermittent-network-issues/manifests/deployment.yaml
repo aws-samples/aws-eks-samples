@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-tcpdump
+  labels:
+    app: aws-tcpdump
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aws-tcpdump
+  template:
+    metadata:
+      labels:
+        app: aws-tcpdump
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - aws-tcpdump
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      containers:
+      - command:
+          - sh
+          - -c
+          - |
+            #!/bin/bash
+            yum install ethtool bind-utils tcpdump wget -y 
+            INSTANCE=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
+            while true; 
+            do 
+            YEAR=$(date +%Y); 
+            MONTH=$(date +%m); 
+            DAY=$(date +%d); 
+            HOUR=$(date +%H); 
+            MINUTE=$(date +%M); 
+            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://test-dump-eks/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://test-dump-eks/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
+            done
+        image: amazon/aws-cli
+        imagePullPolicy: Always
+        name: aws-tcpdump-aws-cli
+      restartPolicy: Always
