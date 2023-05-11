@@ -16,7 +16,10 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
-    
+  pull_request_target:
+    types: [assigned, opened, synchronize, reopened]
+    branches: [ "main" ]
+
 env:
   DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }} 
   
