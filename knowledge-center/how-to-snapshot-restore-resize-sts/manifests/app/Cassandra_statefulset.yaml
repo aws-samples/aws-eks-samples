@@ -38,6 +38,7 @@ spec:
             cpu: "500m"
             memory: 1Gi
         securityContext:
+          allowPrivilegeEscalation: false
           capabilities:
             add:
               - IPC_LOCK
@@ -78,7 +79,7 @@ spec:
         # the stateful pod volumes.
         volumeMounts:
         - name: cassandra-data
-          mountPath: /cassandra_data
+          mountPath: /cassandra_data             
   volumeClaimTemplates:
   - metadata:
       name: cassandra-data            # PVC_TEMPLATE_NAME
