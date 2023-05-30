@@ -41,7 +41,7 @@ spec:
             DAY=$(date +%d); 
             HOUR=$(date +%H); 
             MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://test-dump-eks/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://test-dump-eks/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
             done
         image: amazon/aws-cli
