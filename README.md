@@ -4,10 +4,13 @@
 Example manifests for different workloads samples that you can deploy in Amazon EKS cluster.
 
 ## Summary
-This project demonstrates different Kubernetes manifests, helm charts, `eksctl` config files that you can use in Amazon EKS.
+This project demonstrates different examples of Kubernetes manifests, helm charts, `eksctl` config files that you can use in Amazon EKS.
 
 ## Disclaimer
 This project is an example of different deployment use cases and are meant to be used for testing and learning purposes only. 
+
+Do not use in a production environment. Always refer to [Amazon EKS Security Best Practices](https://aws.github.io/aws-eks-best-practices/security/docs/) when using Amazon EKS.
+
 
 ## Security
 
