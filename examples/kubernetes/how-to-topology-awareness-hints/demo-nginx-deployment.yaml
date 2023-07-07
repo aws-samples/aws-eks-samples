@@ -18,6 +18,9 @@ spec:
       - image: public.ecr.aws/nginx/nginx:latest
         imagePullPolicy: Always
         name: "demo-nginx"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         ports:
         - containerPort: 80
         command: ["/bin/sh"]
@@ -35,3 +38,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+      resources:
+          requests:
+           memory: "64Mi"
+           cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
