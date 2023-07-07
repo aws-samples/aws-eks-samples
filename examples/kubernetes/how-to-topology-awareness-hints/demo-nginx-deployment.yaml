@@ -15,14 +15,13 @@ spec:
         role: "backend"
     spec:
       containers:
-      - image: nginx:1.24.0
+      - image: public.ecr.aws/nginx/nginx:latest
         imagePullPolicy: Always
         name: "demo-nginx"
         ports:
         - containerPort: 80
         command: ["/bin/sh"]
-        args: ["-c", "echo PodName: $MY_POD_NAME  NodeName: $MY_NODE_NAME  podIP: $MY_POD_IP> /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'"]    
-        
+        args: ["-c", "echo PodName: $MY_POD_NAME  NodeName: $MY_NODE_NAME  podIP: $MY_POD_IP> /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'"]       
         env:
         - name: MY_NODE_NAME
           valueFrom:
