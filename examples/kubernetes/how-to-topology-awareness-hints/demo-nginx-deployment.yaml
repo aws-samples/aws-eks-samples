@@ -14,10 +14,18 @@ spec:
         app: "demo-nginx"
         role: "backend"
     spec:
+      automountServiceAccountToken: false
       containers:
       - image: public.ecr.aws/nginx/nginx:latest
         imagePullPolicy: Always
         name: "demo-nginx"
+        resources:
+          requests:
+           memory: "64Mi"
+           cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
@@ -38,10 +46,17 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-      resources:
-          requests:
-           memory: "64Mi"
-           cpu: "250m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+        volumeMounts:
+        - name: cache
+          mountPath: /var/cache/nginx
+        - name: usr
+          mountPath: /var/run    
+        - name: tmp
+          mountPath: /usr/share/nginx/html           
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: usr
+          emptyDir: {}
