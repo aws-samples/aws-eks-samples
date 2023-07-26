@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Datree policy check pt1
-        continue-on-error: true
+        continue-on-error: false
         uses: datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a
         with:
           # Add the path to the configuration file/s that you would like to test.
@@ -58,7 +58,7 @@ jobs:
           helmArguments: '--values values.yaml'          
 
       - name: Run Datree policy check pt2
-        continue-on-error: true
+        continue-on-error: false
         uses: datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a
         with:
           # Add the path to the configuration file/s that you would like to test.
@@ -72,23 +72,3 @@ jobs:
         with:
           sarif_file: datree.sarif
 
-  # k8sPolicyCheckv2:
-  #   permissions:
-  #     contents: read # for actions/checkout to fetch code
-  #     security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Run Datree policy check
-  #       continue-on-error: true
-  #       uses: datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a
-  #       with:
-  #         # Add the path to the configuration file/s that you would like to test.
-  #         # See https://github.com/datreeio/action-datree#usage for all available options.
-  #         path: '**/**/*/*.yml'
-  #         # Setting a SARIF output will generate a file named "datree.sarif" containing your test results
-  #         cliArguments: "-o sarif"
-  #     - name: Upload result to GitHub Code Scanning
-  #       uses: github/codeql-action/upload-sarif@v2
-  #       with:
-  #         sarif_file: datree.sarif
