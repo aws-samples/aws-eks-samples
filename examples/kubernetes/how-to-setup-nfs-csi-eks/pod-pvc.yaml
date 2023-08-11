@@ -20,7 +20,7 @@ metadata:
 spec:
   containers:
     - name: app
-      image: centos:centos8
+      image: public.ecr.aws/docker/library/centos:latest
       command: ["/bin/sh"]
       args: ["-c", "while true; do echo $(date -u) >> /data/out; sleep 5; done"]
       resources:
@@ -31,8 +31,7 @@ spec:
           memory: "128Mi"
           cpu: "500m"      
       securityContext:
-        allowPrivilegeEscalation: true  # modify this depending on your use case    
-        readOnlyRootFilesystem: false # modify this depending on your use case   
+        allowPrivilegeEscalation: false  # modify this depending on your use case    
       volumeMounts:
         - name: persistent-storage
           mountPath: /data               

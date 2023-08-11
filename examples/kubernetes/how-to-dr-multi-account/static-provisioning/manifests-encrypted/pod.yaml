@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: app
-    image: centos:centos8
+    image: public.ecr.aws/docker/library/centos:latest
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
     resources:

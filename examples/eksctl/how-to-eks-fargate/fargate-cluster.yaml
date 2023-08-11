@@ -1,0 +1,22 @@
+apiVersion: eksctl.io/v1alpha5 
+kind: ClusterConfig
+
+metadata:
+  name: fg
+  region: eu-west-1
+  version: "1.27"
+
+fargateProfiles:
+  - name: fp-default
+    selectors:
+      - namespace: default
+
+  - name: fp-kubesystem
+    selectors:
+      - namespace: kube-system
+
+  - name: fp-dev
+    selectors:
+      - namespace: dev
+        labels:
+          env: dev

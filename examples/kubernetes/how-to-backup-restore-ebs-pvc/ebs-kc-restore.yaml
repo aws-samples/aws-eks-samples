@@ -32,8 +32,7 @@ spec:
         memory: "128Mi"
         cpu: "500m"      
     securityContext:
-      allowPrivilegeEscalation: true  # modify this depending on your use case    
-      readOnlyRootFilesystem: false # modify this depending on your use case     
+      allowPrivilegeEscalation: false  # modify this depending on your use case       
     volumeMounts:
     - name: persistent-storage
       mountPath: /data
