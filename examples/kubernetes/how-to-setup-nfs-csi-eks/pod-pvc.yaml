@@ -23,9 +23,19 @@ spec:
       image: centos:centos8
       command: ["/bin/sh"]
       args: ["-c", "while true; do echo $(date -u) >> /data/out; sleep 5; done"]
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"      
+      securityContext:
+        allowPrivilegeEscalation: true  # modify this depending on your use case    
+        readOnlyRootFilesystem: false # modify this depending on your use case   
       volumeMounts:
         - name: persistent-storage
-          mountPath: /data
+          mountPath: /data               
   volumes:
     - name: persistent-storage
       persistentVolumeClaim:

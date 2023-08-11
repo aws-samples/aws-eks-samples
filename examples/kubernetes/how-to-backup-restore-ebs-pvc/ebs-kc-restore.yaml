@@ -24,6 +24,16 @@ spec:
   - name: appserver
     image: busybox:1.36
     command: ["/bin/sh","-c","tail -f /data/out.txt"]
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"      
+    securityContext:
+      allowPrivilegeEscalation: true  # modify this depending on your use case    
+      readOnlyRootFilesystem: false # modify this depending on your use case     
     volumeMounts:
     - name: persistent-storage
       mountPath: /data

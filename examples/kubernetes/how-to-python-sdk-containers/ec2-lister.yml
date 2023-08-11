@@ -19,4 +19,5 @@ spec:
         memory: "128Mi"
         cpu: "500m"
     securityContext:
-      allowPrivilegeEscalation: false        
+      allowPrivilegeEscalation: false       
+      readOnlyRootFilesystem: true       
