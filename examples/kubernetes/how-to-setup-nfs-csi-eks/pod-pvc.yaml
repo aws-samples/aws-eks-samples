@@ -32,6 +32,7 @@ spec:
           cpu: "500m"      
       securityContext:
         allowPrivilegeEscalation: false  # modify this depending on your use case    
+        readOnlyRootFilesystem: true # modify this depending on your use case
       volumeMounts:
         - name: persistent-storage
           mountPath: /data               

@@ -19,7 +19,8 @@ spec:
     - name: persistent-storage
       mountPath: /data
     securityContext:
-      allowPrivilegeEscalation: false       
+      allowPrivilegeEscalation: false    
+      readOnlyRootFilesystem: true    # modify this depending on your use case   
   volumes:
   - name: persistent-storage
     persistentVolumeClaim:

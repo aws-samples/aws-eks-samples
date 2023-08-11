@@ -17,7 +17,7 @@ metadata:
 spec:
   containers:
   - name: appserver
-    image: busybox:1.36
+    image: public.ecr.aws/docker/library/busybox:latest
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo Disaster Recovery in EKS with EBS at $(date -u) >> /data/out.txt; sleep 10; done"]
     resources:
@@ -32,6 +32,7 @@ spec:
       mountPath: /data
     securityContext:
       allowPrivilegeEscalation: false  # modify this depending on your use case    
+      readOnlyRootFilesystem: true    # modify this depending on your use case   
   volumes:
   - name: persistent-storage
     persistentVolumeClaim:
