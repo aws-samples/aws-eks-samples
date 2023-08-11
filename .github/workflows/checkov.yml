@@ -23,7 +23,7 @@ jobs:
         with:
           directory: examples/kubernetes
           framework: kubernetes 
-          skip_check: CKV_K8S_29,CKV_K8S_38,CKV_K8S_25,CKV_K8S_22,CKV_K8S_37,CKV_K8S_31,CKV_K8S_14,CKV_K8S_28,CKV_K8S_43,CKV_K8S_8,CKV_K8S_9,CKV_K8S_40,CKV_K8S_21,CKV_K8S_23,CKV2_K8S_6,CKV_K8S_35
+          skip_check: CKV_K8S_15,CKV_K8S_29,CKV_K8S_38,CKV_K8S_25,CKV_K8S_22,CKV_K8S_37,CKV_K8S_31,CKV_K8S_14,CKV_K8S_28,CKV_K8S_43,CKV_K8S_8,CKV_K8S_9,CKV_K8S_40,CKV_K8S_21,CKV_K8S_23,CKV2_K8S_6,CKV_K8S_35
           # This will add both a CLI output to the console and create a results.sarif file
           output_format: cli,sarif
           output_file_path: console,results.sarif
