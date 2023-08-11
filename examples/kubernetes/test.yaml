@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "demo-nginx-deployment"
+  namespace: "demo"
+spec:
+  selector:
+    matchLabels:
+      app: "demo-nginx"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: "demo-nginx"
+        role: "backend"
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - image: public.ecr.aws/nginx/nginx:latest
+        imagePullPolicy: Always
+        name: "demo-nginx"
+        securityContext:
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh"]
+        args: ["-c", "echo PodName: $MY_POD_NAME  NodeName: $MY_NODE_NAME  podIP: $MY_POD_IP> /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'"]       
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+           fieldRef:
+            fieldPath: spec.nodeName
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        volumeMounts:
+        - name: cache
+          mountPath: /var/cache/nginx
+        - name: usr
+          mountPath: /var/run    
+        - name: tmp
+          mountPath: /usr/share/nginx/html           
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: usr
+          emptyDir: {}
