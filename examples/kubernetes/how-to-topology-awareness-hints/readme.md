@@ -38,7 +38,7 @@ mso-fareast-theme-font:major-fareast">service.kubernetes.io/topology-aware-hints
 <p class="MsoNormal">    Zone 1a: 12 vCPU  Zone 1b: 4vCPU
 
 <p>In the above case when allocating the endpoints, controller will try to make the distribution in a proportional way to number of CPU cores that 75% will be distributed to zone-1a and 25% to zone-1b. When same-zone endpoints are exhausted, endpoints will
-    be taken from zones that have excess capacity.</p>
+    be taken  from zones that have excess capacity.</p>
 <p>If a service had 4 endpoints then endpointSlice controller will attempt to allocate 3 endpoints to zone 1a and 1 endpoint will to 1b.
 </p>
 
