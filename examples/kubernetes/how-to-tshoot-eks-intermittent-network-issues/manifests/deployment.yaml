@@ -47,4 +47,11 @@ spec:
         image: amazon/aws-cli
         imagePullPolicy: Always
         name: aws-tcpdump-aws-cli
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
       restartPolicy: Always
