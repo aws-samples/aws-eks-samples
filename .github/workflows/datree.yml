@@ -13,11 +13,11 @@ name: Datree
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  pull_request_target:
-    types: [assigned, opened, synchronize, reopened]
-    branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main", "master" ]
+  # pull_request_target:
+  #   types: [assigned, opened, synchronize, reopened]
+  #   branches: [ "main" ]
 
 env:
   DATREE_TOKEN: ${{ secrets.DATREE_TOKEN }} 
