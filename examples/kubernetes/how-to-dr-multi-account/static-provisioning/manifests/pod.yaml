@@ -5,12 +5,22 @@ metadata:
 spec:
   containers:
   - name: app
-    image: centos
+    image: public.ecr.aws/docker/library/centos:latest
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"        
     volumeMounts:
     - name: persistent-storage
       mountPath: /data
+    securityContext:
+      allowPrivilegeEscalation: false    
+      readOnlyRootFilesystem: true    # modify this depending on your use case   
   volumes:
   - name: persistent-storage
     persistentVolumeClaim:

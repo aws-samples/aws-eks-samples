@@ -22,8 +22,18 @@ metadata:
 spec:
   containers:
   - name: appserver
-    image: busybox
+    image: public.ecr.aws/docker/library/busybox:latest
     command: ["/bin/sh","-c","tail -f /data/out.txt"]
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"      
+    securityContext:
+      allowPrivilegeEscalation: false  # modify this depending on your use case  
+      readOnlyRootFilesystem: true    # modify this depending on your use case     
     volumeMounts:
     - name: persistent-storage
       mountPath: /data

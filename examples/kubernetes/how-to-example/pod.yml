@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo
+spec:
+  automountServiceAccountToken: false
+  containers:
+  - name: demo
+    image: public.ecr.aws/nginx/nginx:latest
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    securityContext:
+      allowPrivilegeEscalation: false     
+      readOnlyRootFilesystem: true
+    volumeMounts:
+    - name: cache
+      mountPath: /var/cache/nginx
+    - name: tmp
+      mountPath: /var/run    
+  volumes:
+  - name: cache
+    emptyDir: {}
+  - name: tmp
+    emptyDir: {} 
