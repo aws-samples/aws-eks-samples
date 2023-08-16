@@ -9,7 +9,7 @@ Background:</span></h2>
 <p class="MsoNormal" style="text-align:justify">Generally, EKS worker nodes will be spanned over multiple AZs and the pods deployed also will be spread across these nodes in different AZs. Any traffic that is coming will be distributed to these pods randomly based on the Iptables that the kube-proxy
     manages. </p>
 
-<p class="MsoNormal" style="text-align:justify">In a multi-AZ cluster traffic is more likely to go to endpoints that are in the other AZs even though in-zone endpoints are available. With this TopologyAwareHints feature Kube-proxy can make intelligent decisions based on the zone hints by modifying
+<p class="MsoNormal" style="text-align:justify">In a multi-AZ cluster, traffic is more likely to go to endpoints that are in the other AZs even though in-zone endpoints are available. With this TopologyAwareHints feature Kube-proxy can make intelligent decisions based on the zone hints by modifying
     the probabilities for routing traffic to the endpoints routing in KUBE-SERVICE chain. </p>
 
 <h2><span style="mso-fareast-language:EN-GB">Advantages:</span></h2>
