@@ -8,6 +8,16 @@ spec:
   serviceAccountName: aws-sdk
   containers:
   - name: ec2-lister
-    image: berry2012/boto3:1.9.220
+    image: berry2012/boto3:1.9.220   # replace this image with your own image
     command: ["python"]
     args: ["-c", "import boto3; ec2 = boto3.client('ec2', region_name='eu-west-1'); print([instance['InstanceId'] for instance in ec2.describe_instances()['Reservations'][0]['Instances']])"]
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    securityContext:
+      allowPrivilegeEscalation: false       
+      readOnlyRootFilesystem: true       

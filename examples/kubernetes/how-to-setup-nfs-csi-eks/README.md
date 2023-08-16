@@ -93,6 +93,14 @@ You can test your Amazon NFS CSI driver with an application that uses dynamic pr
 
 2. Create a pvc and a pod using below yaml:
 
+**Note: The Manifests in this example ensured that each container has a read-only root filesystem. Before applying the manifests, modify the securityContext depending on your use case**
+
+    ```
+        securityContext:
+          allowPrivilegeEscalation: true      
+          readOnlyRootFilesystem: false 
+    ```
+
 	```
 	kubectl apply -f pod-pvc.yaml
 	```

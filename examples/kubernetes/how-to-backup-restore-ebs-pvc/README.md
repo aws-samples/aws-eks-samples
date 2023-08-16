@@ -10,6 +10,14 @@
 
 This sample involve how to create a snapshot, restore and resize an EBS `PersistentVolume` of Pods.
 
+**Note: The Manifests in this example ensured that each container has a read-only root filesystem. Before applying the manifests, modify the securityContext depending on your use case**
+
+```
+    securityContext:
+      allowPrivilegeEscalation: true      
+      readOnlyRootFilesystem: false 
+```
+
 
 ### Create Snapshot
 
