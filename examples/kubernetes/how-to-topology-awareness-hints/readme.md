@@ -181,7 +181,7 @@ minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font
 mso-bidi-language:AR-SA">1. Create an EKS cluster and worker nodes with nodes across 3 Az's</span></p>
     <p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA">2. Clone into this repository</span></p><pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
+mso-bidi-language:AR-SA">2. Clone into this repository using git clone</span></p><pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
 mso-bidi-language:AR-SA">git clone <br></span></pre>
     <p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
@@ -193,12 +193,12 @@ mso-bidi-language:AR-SA">kubectl apply -f .<span style="font-size:12.0pt;font-fa
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
 mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo-nginx" is deployed as service type ClusterIP adding the annotation
     <p></p><pre> service.kubernetes.io/topology-aware-hints: auto</pre>
-    <p></p><pre>#you can use the below command to verify the service<br></span>kubectl get service service-demo-nginx -n demo -o yaml</pre>
+    <p></p><pre>#you can use the below command to verify the service<br></span>kubectl get service demo-service -n demo -o yaml</pre>
     <p></p>
     <p>5. Verify if the Hints are being populated inside the endpoint slice.</p><pre>kubectl get endpointslices.discovery.k8s.io &lt;endpoint-name&gt; -n demo -oyaml</pre>
     <p>6. You will be able to see hints being populated as below.</p>
-    <p></p><br><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&nbsp;&nbsp;&nbsp; zone: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uid: 1df689f2-65db-47a9-90c7-0dd4b4d0a544<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; namespace: demo<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name: demo-nginx-deployment-7fbc66c54b-mkf4k<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; kind: Pod<br>&nbsp;&nbsp;&nbsp; targetRef:<br>&nbsp;&nbsp;&nbsp; nodeName: ip-10-0-12-200.eu-west-1.compute.internal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - name: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; forZones:<br>&nbsp;&nbsp;&nbsp; hints:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; terminating: false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; serving: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ready: true<br>&nbsp;&nbsp;&nbsp; conditions:<br>&nbsp;&nbsp;&nbsp; - 10.0.2.150<br>&nbsp; - addresses:<br>&nbsp; endpoints:<br>&nbsp; apiVersion: discovery.k8s.io/v1<br>- addressType: IPv4<code class="language-yaml" data-lang="yaml"><span style="display:flex"><span><span style="color:green;font-weight:700"></span></span></span><span style="display:flex"><span><span style="color:#bbb"><br></span></span></span></code></pre>
-    <p>6. Scale the deployment to 4 replicas and then check for the hints in endpoint slices<br></p><pre>kubectl -n demo scale deployments demo-nginx-deployment --replicas=4</pre>
+    <p></p><br><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&nbsp;&nbsp;&nbsp; zone: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uid: 1df689f2-65db-47a9-90c7-0dd4b4d0a544<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; namespace: demo<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name: busybox-demo-7fbc66c54b-mkf4k<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; kind: Pod<br>&nbsp;&nbsp;&nbsp; targetRef:<br>&nbsp;&nbsp;&nbsp; nodeName: ip-10-0-12-200.eu-west-1.compute.internal<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - name: eu-west-1a<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; forZones:<br>&nbsp;&nbsp;&nbsp; hints:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; terminating: false<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; serving: true<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ready: true<br>&nbsp;&nbsp;&nbsp; conditions:<br>&nbsp;&nbsp;&nbsp; - 10.0.2.150<br>&nbsp; - addresses:<br>&nbsp; endpoints:<br>&nbsp; apiVersion: discovery.k8s.io/v1<br>- addressType: IPv4<code class="language-yaml" data-lang="yaml"><span style="display:flex"><span><span style="color:green;font-weight:700"></span></span></span><span style="display:flex"><span><span style="color:#bbb"><br></span></span></span></code></pre>
+    <p>6. Scale the deployment to 4 replicas and then check for the hints in endpoint slices<br></p><pre>kubectl -n demo scale deployments busybox-demo --replicas=4</pre>
     <p>7. You can observe that the Hints being removed as it is impossible to achieve even distribution and also the overhead threshold breaches as explained above.</p>
     <p>8. Verify the kube-proxy pod logs if it says kube-proxy skipped applying Hints</p><pre>kubectl -n kube-system logs kube-proxy-xxxx<br></pre><pre>I0228 11:05:14.404568&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:853] "Syncing iptables rules"<br>I0228 11:05:14.431451&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 topology.go:168] "Skipping topology aware endpoint filtering since one or more endpoints is missing a zone hint"<br>I0228 11:05:14.431530&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:1464] "Reloading service iptables data" numServices=12 numEndpoints=17 numFilterChains=4 numFilterRules=4 numNATChains=32 numNATRules=67<br>I0228 11:05:14.435518&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 proxier.go:820] "SyncProxyRules complete" elapsed="31.008873ms"</pre>
     <h1>Test:</h1>
@@ -207,7 +207,11 @@ mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo
     <p>3. You can use "nicolaka/netshoot" image in test pod to curl the service. Replace the &lt;node-name&gt; in below command.<br></p>
     <p> </p><pre>&nbsp;kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot --overrides='{"spec": { "nodeSelector": {"kubernetes.io/hostname": "&lt;node-name&gt;"}}}'</pre>
     <p>4. Once you are inside the pod use curl command to hit the service </p><pre>curl &lt;service-ClusterIP&gt;:80</pre>
-    <p>5. The above sample deployment will return the output of PodName and the nodeName on which it is scheduled as below<br></p><pre>PodName: demo-nginx-deployment-7fbc66c54b-mkf4k NodeName: ip-10-0-12-200.eu-west-1.compute.internal podIP: 10.0.2.150</pre>
+    <p>5. The above sample deployment will return the output of PodName and the nodeName on which it is scheduled as below<br></p><pre><html><body><h4>PodName:busybox-demo-7b7b9bf455-c27z9
+HTTP/1.1 200 OK
+NodeName:ip-10-0-9-45.eu-west-1.compute.internal
+HTTP/1.1 200 OK
+podIP:10.0.11.140</h4></body></html></pre>
     <p>6. From the above output you can verify whether the traffic is being forwarded to the pods from same Az </p>
     <p>7. Take the nodeName from the output, use the following command which will return you the zone of that node and you can verify if it aligns with the zone in which your test pod is deployed <br></p><pre> kubectl get nodes &lt;node-name&gt;&nbsp; -L topology.kubernetes.io/zone<br></pre>
     <p></p>
