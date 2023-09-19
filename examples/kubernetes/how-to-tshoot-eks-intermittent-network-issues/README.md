@@ -10,6 +10,14 @@
 - S3 bucket
 
 ---
+## Warning : 
+
+The pods deployed in this sample will have hostNetwork set to true.
+A pod can access the network namespace and network resources of the node if it is running in the host network of the node where it is deployed.
+In this case, the pod can listen for requests directed to particular addresses which allows users to collect packet captures on a node level from the pod.
+Please remove these pods from the cluster as soon as desired data collection completes. 
+
+---
 
 ## Usage
 
