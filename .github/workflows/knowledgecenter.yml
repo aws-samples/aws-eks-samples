@@ -1,0 +1,51 @@
+---
+name: Knowledge Center
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  checkov:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test with Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: knowledge-center
+          framework: kubernetes 
+          skip_check: CKV2_K8S_6,CKV_K8S_8,CKV_K8S_9,CKV_K8S_14,CKV_K8S_21,CKV_K8S_22,CKV_K8S_23,CKV_K8S_25,CKV_K8S_28,CKV_K8S_35,CKV_K8S_37,CKV_K8S_40,CKV_K8S_43
+          # This will add both a CLI output to the console and create a results.sarif file
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+          # pass on failure so that code report upload can succeed 
+          # soft_fail: true
+
+      - name: Expose report
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: SARIF results
+          path: results.sarif
+
+      # Uploads results.sarif to GitHub repository using the upload-sarif action
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        
+        # Results are generated only on a success or failure
+        # this is required since GitHub by default won't run the next step
+        # when the previous one has failed. Security checks that do not pass will 'fail'.
+        # An alternative is to add `continue-on-error: true` to the previous step
+        # Or 'soft_fail: true' to checkov.
+        if: success() || failure()
+        with:
+          sarif_file: results.sarif

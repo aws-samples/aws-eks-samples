@@ -16,6 +16,10 @@ spec:
       labels:
         app: cassandra  # Pod template's label selector
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault    
       terminationGracePeriodSeconds: 1800
       containers:
       - name: cassandra
@@ -79,7 +83,7 @@ spec:
         # the stateful pod volumes.
         volumeMounts:
         - name: cassandra-data
-          mountPath: /cassandra_data             
+          mountPath: /cassandra_data
   volumeClaimTemplates:
   - metadata:
       name: cassandra-data            # PVC_TEMPLATE_NAME
