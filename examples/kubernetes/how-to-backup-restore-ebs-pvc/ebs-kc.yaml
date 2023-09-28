@@ -15,9 +15,14 @@ kind: Pod
 metadata:
   name: appserver
 spec:
+  automountServiceAccountToken: false
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
   containers:
   - name: appserver
     image: public.ecr.aws/docker/library/busybox:latest
+    imagePullPolicy: Always
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo Disaster Recovery in EKS with EBS at $(date -u) >> /data/out.txt; sleep 10; done"]
     resources:
@@ -31,8 +36,11 @@ spec:
     - name: persistent-storage
       mountPath: /data
     securityContext:
-      allowPrivilegeEscalation: false  # modify this depending on your use case    
-      readOnlyRootFilesystem: true    # modify this depending on your use case   
+      allowPrivilegeEscalation: false  
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL  
   volumes:
   - name: persistent-storage
     persistentVolumeClaim:

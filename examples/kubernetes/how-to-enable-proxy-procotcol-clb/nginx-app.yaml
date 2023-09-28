@@ -12,9 +12,14 @@ spec:
       labels:
         app: nginx
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault   
       containers:
       - name: my-nginx
         image: public.ecr.aws/nginx/nginx:latest
+        imagePullPolicy: Always        
         resources:
           requests:
            memory: "64Mi"

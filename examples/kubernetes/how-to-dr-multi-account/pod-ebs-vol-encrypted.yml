@@ -34,9 +34,14 @@ kind: Pod
 metadata:
   name: app
 spec:
+  automountServiceAccountToken: false
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault    
   containers:
   - name: app
     image: public.ecr.aws/docker/library/centos:latest
+    imagePullPolicy: Always
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo $(date -u) >> /data/out.txt; sleep 5; done"]
     resources:
@@ -51,7 +56,10 @@ spec:
       mountPath: /data
     securityContext:
       allowPrivilegeEscalation: false  
-      readOnlyRootFilesystem: true    # modify this depending on your use case     
+      readOnlyRootFilesystem: true   
+      capabilities:
+        drop:
+          - ALL       # modify this depending on your use case     
   volumes:
   - name: persistent-storage
     persistentVolumeClaim:

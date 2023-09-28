@@ -20,9 +20,14 @@ kind: Pod
 metadata:
   name: appserver-recovery
 spec:
+  automountServiceAccountToken: false
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
   containers:
   - name: appserver
     image: public.ecr.aws/docker/library/busybox:latest
+    imagePullPolicy: Always    
     command: ["/bin/sh","-c","tail -f /data/out.txt"]
     resources:
       requests:
@@ -32,8 +37,11 @@ spec:
         memory: "128Mi"
         cpu: "500m"      
     securityContext:
-      allowPrivilegeEscalation: false  # modify this depending on your use case  
-      readOnlyRootFilesystem: true    # modify this depending on your use case     
+      allowPrivilegeEscalation: false  
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL 
     volumeMounts:
     - name: persistent-storage
       mountPath: /data

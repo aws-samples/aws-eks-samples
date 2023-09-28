@@ -10,15 +10,6 @@
 
 This sample involve how to create a snapshot, restore and resize an EBS `PersistentVolume` of Pods.
 
-**Note: The Manifests in this example ensured that each container has a read-only root filesystem. Before applying the manifests, modify the securityContext depending on your use case**
-
-```
-    securityContext:
-      allowPrivilegeEscalation: true      
-      readOnlyRootFilesystem: false 
-```
-
-
 ### Create Snapshot
 
 1. Create the `StorageClass` and `VolumeSnapshotClass`:
@@ -44,8 +35,12 @@ This sample involve how to create a snapshot, restore and resize an EBS `Persist
 4. Validate the pod successfully wrote data to the volume, taking note of the timestamp of the first entry:
     ```sh
     kubectl exec -it appserver -- cat /data/out.txt
-    Tue Sep 27 17:06:34 UTC 2022
-    Tue Sep 27 17:06:39 UTC 2022
+
+    Example output: 
+
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:48:55 UTC 2023
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:49:05 UTC 2023
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:49:15 UTC 2023
 
     ```
 
@@ -56,8 +51,11 @@ This sample involve how to create a snapshot, restore and resize an EBS `Persist
     volumesnapshot.snapshot.storage.k8s.io/ebs-volume-snapshot created
     ```
 
-2. Wait for the `Ready To Use:  true` attribute of the `VolumeSnapshot`: 
+2. Describe the snapshot and wait for the `Ready To Use:  true` attribute of the `VolumeSnapshot`: 
     ```sh
+
+    kubectl describe volumesnapshot.snapshot.storage.k8s.io/ebs-volume-snapshot | grep -i Status -A6
+
     ...
     Status:
     Bound Volume Snapshot Content Name:  snapcontent-333215f5-ab85-42b8-b4fc-27a6cba0cc19
@@ -66,10 +64,9 @@ This sample involve how to create a snapshot, restore and resize an EBS `Persist
     Restore Size:                        2Gi
     ```
 
-3. Delete the existing app and its PVC:
+3. Delete the existing app and its PVC and Pod:
     ```sh
     kubectl delete -f ebs-kc.yaml
-
     ```
 ### Restore Volume
 
@@ -82,10 +79,14 @@ This sample involve how to create a snapshot, restore and resize an EBS `Persist
 9.  verify the content of the EBS storage:
     ```sh
 
-    kubectl exec "appserver-recovery" -- sh -c 'cat /data/out.txt'; done
-    Tue Sep 27 17:06:34 UTC 2022
-    Tue Sep 27 17:06:39 UTC 2022
-    Tue Sep 27 17:06:44 UTC 2022
+    kubectl exec "appserver-recovery" -- sh -c 'cat /data/out.txt'
+
+    Example output: 
+
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:48:55 UTC 2023
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:49:05 UTC 2023
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:49:15 UTC 2023
+    Disaster Recovery in EKS with EBS at Thu Sep 28 09:49:25 UTC 2023
     ```
 
 10. Let's modify PVCs dynamically to reflect size in the PodulSet:
@@ -97,28 +98,29 @@ This sample involve how to create a snapshot, restore and resize an EBS `Persist
 
 11. Validate that the new size is 4Gi
     ```sh
-    aws ec2 describe-snapshots --filters "Name=tag-key,Values=*ebs*" --query 'Snapshots[*].{VOL_ID:VolumeId,SnapshotID:SnapshotId,State:State,Size:VolumeSize,Name:[Tags[?Key==`Name`].Value] [0][0]}' --output table
-    ------------------------------------------------------------------------------------------------------------------------------------------------------
-    |                                                                  DescribeSnapshots                                                                 |
-    +---------------------------------------------------------------------------+-------+-------------------------+------------+-------------------------+
-    |                                   Name                                    | Size  |       SnapshotID        |   State    |         VOL_ID          |
-    +---------------------------------------------------------------------------+-------+-------------------------+------------+-------------------------+
-    |  eksworkshop-eksctl-dynamic-snapshot-d41f920a-0146-4a14-8540-6c961e5809e1 |  4    |  snap-0edcXXXX8XXXXb3 |  completed |  vol-03XXXXXXc1657  |
-    +---------------------------------------------------------------------------+-------+-------------------------+------------+-------------------------+
+    aws ec2 describe-volumes --filters "Name=tag:Name,Values=*pvc*" --query 'Volumes[*].{VOL_ID:VolumeId,Size:Size}' --output 
+table
+    ```
+
+    Example output:
+
+    ```
+    -----------------------------------
+    |         DescribeVolumes         |
+    +------+--------------------------+
+    | Size |         VOL_ID           |
+    +------+--------------------------+
+    |  4   |  vol-0abcde12345         |
+    +------+--------------------------+
   
     ```
 
 
-12. Cleanup resources:
+1.  Cleanup resources:
     ```sh
     kubectl delete -f ebs-kc-restore.yaml
-    persistentvolumeclaim "appserver-recovery-claim" deleted
-    pod "appserver-recovery" deleted
 
     kubectl delete -f ebs-kc-snapshot.yaml
-    volumesnapshot.snapshot.storage.k8s.io "ebs-volume-snapshot" deleted
 
     kubectl delete -f ebs-kc-classes.yaml
-    storageclass.storage.k8s.io "disaster-recovery" deleted
-    volumesnapshotclass.snapshot.storage.k8s.io "csi-aws-vsc" deleted
     ```

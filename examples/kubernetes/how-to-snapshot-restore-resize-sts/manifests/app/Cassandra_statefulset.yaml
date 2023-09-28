@@ -16,6 +16,10 @@ spec:
       labels:
         app: cassandra  # Pod template's label selector
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault    
       terminationGracePeriodSeconds: 1800
       containers:
       - name: cassandra
