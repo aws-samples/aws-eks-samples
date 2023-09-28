@@ -24,13 +24,13 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
 
   # Maintain dependencies for docker
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "monthly"      
+      interval: "weekly"      
 
   # Maintain dependencies for docker
   - package-ecosystem: "docker"
@@ -41,4 +41,4 @@ updates:
   - package-ecosystem: pip
     directory: "/examples/helm"
     schedule:
-      interval: monthly       
+      interval: weekly       
