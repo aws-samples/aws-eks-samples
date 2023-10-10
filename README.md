@@ -26,19 +26,19 @@ The kubernetes resource are continuously scanned using [Checkov](https://www.che
 
 |Checks	|Details	|Reasons	|
 |---	|---	|---	|
-|CKV2_K8S_6	|Minimize the admission of pods which lack an associated NetworkPolicy	|Network Policy is not included in the scope of this project	|
-|CKV_K8S_8	|Liveness Probe Should be Configured	|Project is suitable used for testing and learning purposes only	|
-|CKV_K8S_9	|Readiness Probe Should be Configured	|Project is suitable used for testing and learning purposes only	|
-|CKV_K8S_14	|Image Tag should be fixed - not latest or blank	|We've used latest Images from the Amazon ECR Public Gallery	|
-|CKV_K8S_21	|The default namespace should not be used	|Project is suitable used for testing and learning purposes only	|
+|CKV2_K8S_6	|Minimize the admission of pods which lack an associated NetworkPolicy	|All Pod to Pod communication is allowed by default for easy experimentation in this project. Amazon VPC CNI now supports [Kubernetes Network Policies](https://aws.amazon.com/blogs/containers/amazon-vpc-cni-now-supports-kubernetes-network-policies/) to secure network traffic in kubernetes clusters	|
+|CKV_K8S_8	|Liveness Probe Should be Configured	|For easy experimentation, no health checks is to be performed against the container to determine whether it is alive or not. Consider implementing health checks in a production cluster.	|
+|CKV_K8S_9	|Readiness Probe Should be Configured	|For easy experimentation, no health checks is to be performed against the container to determine whether it is alive or not. Consider implementing health checks in a production cluster.	|
+|CKV_K8S_14	|Image Tag should be fixed - not latest or blank	|We've opted to fetch the latest Images from the Amazon ECR Public Gallery to ensure each sample is deployed with most recent versions.	|
+|CKV_K8S_21	|The default namespace should not be used	|To help promote flexible experimentation, Short-lived samples use the default namespace and should be deleted upon test completion. We recommend that you do not use the default namespace in large production systems.	|
 |CKV_K8S_22	|Use read-only filesystem for containers where possible	|We've made an exception for Cassandra workload that requires are Read/Write file system	|
-|CKV_K8S_23	|Minimize the admission of root containers	|We've used publicly available container images  	|
-|CKV_K8S_25	|Minimize the admission of containers with added capability	|We've made an exception for Cassandra workload that requires added capability	|
-|CKV_K8S_28	|Minimize the admission of containers with the NET_RAW capability	|Exception for nginx workload that requires added capability	|
-|CKV_K8S_35	|Prefer using secrets as files over secrets as environment variables	|Not needed in the scope of this project	|
-|CKV_K8S_37	|Minimize the admission of containers with capabilities assigned	|Exception for nginx workload that requires added capability	|
-|CKV_K8S_40	|Containers should run as a high UID to avoid host conflict	|We've used latest Images from the Amazon ECR Public Gallery	|
-|CKV_K8S_43	|Image should use digest	|We've used latest Images from the Amazon ECR Public Gallery	|
+|CKV_K8S_23	|Minimize the admission of root containers	|We've used publicly available container images in this project for customers' easy access. For test purposes, the container images user id are left intact.  	|
+|CKV_K8S_25	|Minimize the admission of containers with added capability	|We've made an exception for Cassandra workload that requires added capability. See Container [Capabilities](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) for more. 	|
+|CKV_K8S_28	|Minimize the admission of containers with the NET_RAW capability	|Exception for nginx workload that requires added capability. We [recommend](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) you define at least one PodSecurityPolicy (PSP) to prevent containers with NET_RAW capability from launching in a production environment.	|
+|CKV_K8S_35	|Prefer using secrets as files over secrets as environment variables	|While it secret has not been included in this samples, consider using a secret in an environment variable 	|
+|CKV_K8S_37	|Minimize the admission of containers with capabilities assigned	|For easy experimentation, we've made exception for nginx workload that requires added capability. For production purposes, we recommend capabilities field that allows granting certain privileges to a process without granting all the privileges of the root user.  	|
+|CKV_K8S_40	|Containers should run as a high UID to avoid host conflict	|We've opted to publicly accessible images from the Amazon ECR Public Gallery. For test purposes, the container images user id are left intact. 	|
+|CKV_K8S_43	|Image should use digest	|We've opted to fetch the latest Images from the Amazon ECR Public Gallery to ensure each sample is deployed with most recent versions. In some production cases you may prefer to use a fixed version of an image, rather than update to newer versions and you can pull an image by its digest.	|
 
 
 
