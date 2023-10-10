@@ -169,6 +169,9 @@ these Hints.</span></p>
 minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font:minor-bidi">4. Applying these Hints can be skipped by kube-proxy at times where there are any pod assignment constraints such as Affinity/Anti-affinity etc. where the redistribution of endpoints cannot be made.<br></span></p>
     <p class="MsoNormal"><span style="font-family:
 &quot;Calibri&quot;,sans-serif;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
+minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font:minor-bidi">5. This feature also considers any Fargate nodes as similar to regular EC2 nodes when calculating the Overhead Threshold.<br></span></p>
+    <p class="MsoNormal"><span style="font-family:
+&quot;Calibri&quot;,sans-serif;mso-ascii-theme-font:minor-latin;mso-hansi-theme-font:
 minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font:minor-bidi"><br></span>There are some Safeguards and Constraints under which kube-proxy decides skip these topology hints to implements</p>
     <p class="MsoNormal">Safeguards: <a href="https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards">https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#safeguards</a>
     <p class="MsoNormal">Constraints: <a href="https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints">https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/#constraints</a>
@@ -178,7 +181,7 @@ minor-latin;mso-bidi-font-family:&quot;Times New Roman&quot;;mso-bidi-theme-font
     <h1>Demo:<br></h1>
     <p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA">1. Create an EKS cluster and worker nodes with nodes across 3 Az's</span></p>
+mso-bidi-language:AR-SA">1. Create an EKS cluster and worker nodes with nodes across 3 Az's. </span></p>
     <p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
 mso-bidi-language:AR-SA">2. Clone into this repository using git clone</span></p><pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
@@ -186,12 +189,12 @@ mso-bidi-language:AR-SA">2. Clone into this repository using git clone</span></p
 mso-bidi-language:AR-SA">git clone <br></span></pre>
     <p><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA">3. Apply the manifests in this repository, this will create the namespace, deployment using the Nginx image and a service exposing the deployment</span></p>
+mso-bidi-language:AR-SA">3. Apply the manifests in this repository, this will create the namespace, deployment using the Busybox image and a service exposing the deployment</span></p>
     <pre><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
 mso-bidi-language:AR-SA">kubectl apply -f .<span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;mso-fareast-font-family:
 &quot;Times New Roman&quot;;mso-ansi-language:EN-IE;mso-fareast-language:EN-GB;
-mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo-nginx" is deployed as service type ClusterIP adding the annotation
+mso-bidi-language:AR-SA"><br></span></pre>4. Note that the service "service-demo-Busybox" is deployed as service type ClusterIP adding the annotation
     <p></p><pre> service.kubernetes.io/topology-aware-hints: auto</pre>
     <p></p><pre>#you can use the below command to verify the service<br></span>kubectl get service demo-service -n demo -o yaml</pre>
     <p></p>
