@@ -8,6 +8,7 @@
 - kubectl 
 - IMDS access
 - S3 bucket
+- IAM Policy on worker node to allow push to S3
 
 ---
 ## Warning : 
@@ -25,6 +26,8 @@ When troubleshooting issues related to intermittent connectivity in a cluster th
 
 1. Edit the manifest YAMLs to reflect the S3 bucket name in your account. 
 2. You can make changes to the tcpdump command as well to make it more inline with the communication that you're trying to retrieve a packet capture for. Refer : https://linux.die.net/man/8/tcpdump
+
+You would be required to add permissions shared in the manifests section to use the IAM policy required for node to push captures to the S3 bucket. 
 
 --- 
 
