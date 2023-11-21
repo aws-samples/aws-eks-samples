@@ -47,3 +47,116 @@ Reference : https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-n
 
 In cases where a particular node or set of nodes can not be identified that lead to connectivity issues, the pod could be run as a daemonset to ensure that pcaps are captured from all the nodes and sent to an existing S3 bucket. 
 
+---
+
+#### Daemonset : 
+
+```
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: aws-tcpdump
+  name: aws-tcpdump
+spec:
+  selector:
+    matchLabels:
+      app: aws-tcpdump
+  template:
+    metadata:
+      labels:
+        app: aws-tcpdump
+    spec:
+      hostNetwork: true
+      containers:
+      - image: amazon/aws-cli
+        name: aws-tcpdump-aws-cli
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        command:
+          - sh
+          - -c
+          - |
+            #!/bin/bash
+            yum install ethtool bind-utils tcpdump wget -y 
+            INSTANCE=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
+            while true; 
+            do 
+            YEAR=$(date +%Y); 
+            MONTH=$(date +%m); 
+            DAY=$(date +%d); 
+            HOUR=$(date +%H); 
+            MINUTE=$(date +%M); 
+            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
+            done
+```
+
+#### Deployment :
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws-tcpdump
+  labels:
+    app: aws-tcpdump
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aws-tcpdump
+  template:
+    metadata:
+      labels:
+        app: aws-tcpdump
+    spec:
+      hostNetwork: true
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - aws-tcpdump
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      containers:
+      - command:
+          - sh
+          - -c
+          - |
+            #!/bin/bash
+            yum install ethtool bind-utils tcpdump wget -y 
+            INSTANCE=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
+            while true; 
+            do 
+            YEAR=$(date +%Y); 
+            MONTH=$(date +%m); 
+            DAY=$(date +%d); 
+            HOUR=$(date +%H); 
+            MINUTE=$(date +%M); 
+            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
+            done
+        image: amazon/aws-cli
+        imagePullPolicy: Always
+        name: aws-tcpdump-aws-cli
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      restartPolicy: Always
+
+```
