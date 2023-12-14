@@ -70,6 +70,7 @@ spec:
       labels:
         app: aws-tcpdump
     spec:
+      automountServiceAccountToken: false
       hostNetwork: true
       securityContext:
         runAsNonRoot: true
@@ -124,6 +125,7 @@ spec:
       labels:
         app: aws-tcpdump
     spec:
+      automountServiceAccountToken: false
       hostNetwork: true
       affinity:
         podAntiAffinity:
