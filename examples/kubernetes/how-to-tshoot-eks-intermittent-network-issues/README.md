@@ -72,9 +72,10 @@ spec:
     spec:
       hostNetwork: true
       securityContext:
-runAsNonRoot: true
+        runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
+        allowPrivilegeEscalation: false
       containers:
       - image: amazon/aws-cli
         name: aws-tcpdump-aws-cli
@@ -140,6 +141,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         runAsGroup: 1000
+        allowPrivilegeEscalation: false
       containers:
       - command:
           - sh
