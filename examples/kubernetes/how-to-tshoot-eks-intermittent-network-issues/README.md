@@ -71,6 +71,10 @@ spec:
         app: aws-tcpdump
     spec:
       hostNetwork: true
+      securityContext:
+runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - image: amazon/aws-cli
         name: aws-tcpdump-aws-cli
@@ -132,6 +136,10 @@ spec:
                   - aws-tcpdump
               topologyKey: kubernetes.io/hostname
             weight: 100
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - command:
           - sh
