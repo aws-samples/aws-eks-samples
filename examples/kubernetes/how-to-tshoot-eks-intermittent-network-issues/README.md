@@ -78,7 +78,7 @@ spec:
         runAsGroup: 1000
         allowPrivilegeEscalation: false
       containers:
-      - image: amazon/aws-cli
+      - image: public.ecr.aws/aws-cli/aws-cli:latest
         name: aws-tcpdump-aws-cli
         resources:
           requests:
@@ -162,7 +162,7 @@ spec:
             tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
             done
-        image: amazon/aws-cli
+        image: public.ecr.aws/aws-cli/aws-cli:latest
         imagePullPolicy: Always
         name: aws-tcpdump-aws-cli
         resources:
