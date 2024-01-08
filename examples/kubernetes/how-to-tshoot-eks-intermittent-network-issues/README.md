@@ -8,6 +8,7 @@
 - kubectl 
 - IMDS access
 - S3 bucket
+- eksctl
 - IAM Policy on worker node to allow push to S3
 
 ---
