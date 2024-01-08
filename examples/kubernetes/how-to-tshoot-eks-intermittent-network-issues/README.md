@@ -72,6 +72,7 @@ spec:
         app: aws-tcpdump
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       hostNetwork: true
       securityContext:
         runAsNonRoot: true
@@ -128,6 +129,7 @@ spec:
         app: aws-tcpdump
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       hostNetwork: true
       affinity:
         podAntiAffinity:
