@@ -39,6 +39,60 @@ First, you would need to setup an S3 bucket or you can choose to use an existing
 
 To keep analysis targetted, first try to figure out if the connectivity issue happens for a particular worker node, set of worker nodes or randomly anywhere across the cluster. Follow the sections below to work with either of the mentioned scenarios. 
 
+#### Providing correct IAM permissions to stream captures to S3
+
+There's two approach to accomplish this : 
+
+1. Assign IAM policy to worker node role and remove the added permissions once data collection completes
+   To use this approach, navigate to your AWS IAM console, and create an IAM policy using the S3Policy specified in manifests folder. Once you create the IAM policy, assign it to the worker node IAM role. 
+
+2. *Preferred Approach* Leverage IAM Role for Service Account to assign IAM permissions to the tcpdump pods only.
+You can run the following command to create the S3 policy file that allows write-only access to an Amazon S3 bucket. If you want to create this S3 policy, copy the following contents to your device. Replace <bucket-to-push-logs-to> with your bucket name and run the command. 
+
+```
+cat >s3-tcpdump-policy.json <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation"
+            ],
+            "Resource": "arn:aws:s3:::<bucket-to-push-logs-to>"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::<bucket-to-push-logs-to>/*"
+        }
+    ]
+}
+EOF
+```
+
+Create the IAM policy.
+
+```
+aws iam create-policy --policy-name s3-tcpdump-policy --policy-document file://s3-tcpdump-policy.json
+```
+
+Create an IAM role and associate it with a Kubernetes service account. You can leverage eksctl to do that for you : 
+
+```
+eksctl create iamserviceaccount --name s3-tcpdump-service-account --namespace s3-tcpdump --cluster <my-cluster> --role-name eks-s3-tcpdump --attach-policy-arn arn:aws:iam::111122223333:policy/s3-tcpdump-policy --approve
+```
+
+
+Confirm that the Kubernetes service account is annotated with the role.
+
+```
+kubectl describe serviceaccount s3-tcpdump-service-account -n s3-tcpdump
+```
+---
 
 #### Particular Worker Node
 
