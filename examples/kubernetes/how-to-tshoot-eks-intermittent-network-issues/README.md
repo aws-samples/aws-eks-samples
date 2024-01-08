@@ -11,7 +11,7 @@
 - IAM Policy on worker node to allow push to S3
 
 ---
-## Warning : 
+## Warning 
 
 The pods deployed in this sample will have hostNetwork set to true.
 A pod can access the network namespace and network resources of the node if it is running in the host network of the node where it is deployed.
@@ -33,7 +33,11 @@ You would be required to add permissions shared in the manifests section to use 
 
 ## Getting Started
 
-To keep analysis targetted, first try to figure out if the connectivity issue happens for a particular worker node, set of worker nodes or randomly anywhere across the cluster. Follow the sections below to work with either of the mentineod scenarios. 
+First, you would need to setup an S3 bucket or you can choose to use an existing S3 bucket. Should you need to create a new S3 bucket, please refer the best pracatices document below to help setup S3 bucket with server access logging that does NOT have public access enabled : 
+
+- Security best practices for Amazon S3 - https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
+
+To keep analysis targetted, first try to figure out if the connectivity issue happens for a particular worker node, set of worker nodes or randomly anywhere across the cluster. Follow the sections below to work with either of the mentioned scenarios. 
 
 
 #### Particular Worker Node
