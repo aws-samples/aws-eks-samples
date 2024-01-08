@@ -46,7 +46,7 @@ There's two approach to accomplish this :
 
 1. Assign IAM policy to worker node role and remove the added permissions once data collection completes
    
-   To use this approach, navigate to your AWS IAM console, and create an IAM policy using the S3Policy specified in manifests folder. Once you create the IAM policy, assign it to the worker node IAM role. 
+   To use this approach, navigate to your AWS IAM console, and create an IAM policy using the s3-tcpdump-policy.json specified in manifests folder. Once you create the IAM policy, assign it to the worker node IAM role. 
 
 2. *Preferred Approach* : Leverage IAM Role for Service Account to assign IAM permissions to the tcpdump pods only
    
