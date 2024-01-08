@@ -61,6 +61,7 @@ metadata:
   labels:
     app: aws-tcpdump
   name: aws-tcpdump
+  namespace: s3-tcpdump
 spec:
   selector:
     matchLabels:
@@ -113,6 +114,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aws-tcpdump
+  namespace: s3-tcpdump
   labels:
     app: aws-tcpdump
 spec:
