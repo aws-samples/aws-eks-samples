@@ -34,9 +34,15 @@ You would be required to add permissions shared in the manifests section to use 
 
 ## Getting Started
 
-First, you would need to setup an S3 bucket or you can choose to use an existing S3 bucket. Should you need to create a new S3 bucket, please refer the best pracatices document below to help setup S3 bucket with server access logging that does NOT have public access enabled : 
+First, setup a namespace to run the pods in. Use the manifest called namespace.yaml in the manifests folder to do that.  
+
+Next, you would need to setup an S3 bucket or you can choose to use an existing S3 bucket. Should you need to create a new S3 bucket, please refer the best pracatices document below to help setup S3 bucket with server access logging that does NOT have public access enabled : 
 
 - Security best practices for Amazon S3 - https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
+
+Server access logging provides detailed records of the requests that are made to a bucket. Server access logs can assist you in security and access audits, help you learn about your customer base, and understand your Amazon S3 bill. Further, Amazon EKS control plane logging provides audit and diagnostic logs directly from the Amazon EKS control plane to CloudWatch Logs in your account. These logs make it easy for you to secure and run your clusters. You can select the exact log types you need, and logs are sent as log streams to a group for each Amazon EKS cluster in CloudWatch. Refer to documentation below to get started with EKS Control Plane logging setup : 
+
+- Amazon EKS control plane logging - https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html
 
 To keep analysis targetted, first try to figure out if the connectivity issue happens for a particular worker node, set of worker nodes or randomly anywhere across the cluster. Follow the sections below to work with either of the mentioned scenarios. 
 
@@ -242,3 +248,35 @@ spec:
       restartPolicy: Always
 
 ```
+
+---
+## Cleanup
+
+Once the required data is collected analyzed, please clean up the resources created on the EKS cluster and delete the S3 bucket to avoid uncurring additional storage costs over time. 
+
+To clean up deployment, please run : 
+
+```
+kubectl delete deployment aws-tcpdump -n s3-tcpdump
+```
+
+
+To clean up daemonset, please run : 
+
+```
+kubectl delete daemonset aws-tcpdump -n s3-tcpdump
+```
+
+Once the pods are removed from the cluster, delete the service account using : 
+
+```
+kubectl delete serviceaccount s3-tcpdump-service-account -n s3-tcpdump
+```
+
+And finally, the namespace can be deleted using : 
+
+```
+kubectl delete namespace s3-tcpdump
+```
+
+To delete S3 bucket, navigate to AWS S3 console. If you provisioned an S3 bucket only to collect tcpdumps, feel free to delete the entire bucket. If you're using an existing S3 bucket, delete the folder `tcp-dumps` to remove all pcap files. 
