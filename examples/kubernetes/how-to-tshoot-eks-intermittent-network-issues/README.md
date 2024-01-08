@@ -46,7 +46,7 @@ There's two approach to accomplish this :
 1. Assign IAM policy to worker node role and remove the added permissions once data collection completes
    To use this approach, navigate to your AWS IAM console, and create an IAM policy using the S3Policy specified in manifests folder. Once you create the IAM policy, assign it to the worker node IAM role. 
 
-2. *Preferred Approach* Leverage IAM Role for Service Account to assign IAM permissions to the tcpdump pods only.
+2. *Preferred Approach* : Leverage IAM Role for Service Account to assign IAM permissions to the tcpdump pods only.
 You can run the following command to create the S3 policy file that allows write-only access to an Amazon S3 bucket. If you want to create this S3 policy, copy the following contents to your device. Replace <bucket-to-push-logs-to> with your bucket name and run the command. 
 
 ```
