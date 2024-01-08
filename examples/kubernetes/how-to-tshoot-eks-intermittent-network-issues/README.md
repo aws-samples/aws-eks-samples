@@ -78,6 +78,7 @@ spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
       hostNetwork: true
+      serviceAccountName: s3-tcpdump-service-account
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -134,6 +135,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
+      serviceAccountName: s3-tcpdump-service-account
       hostNetwork: true
       affinity:
         podAntiAffinity:
