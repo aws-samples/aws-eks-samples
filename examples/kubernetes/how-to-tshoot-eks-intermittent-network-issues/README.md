@@ -149,7 +149,8 @@ spec:
       containers:
       - image: public.ecr.aws/aws-cli/aws-cli:latest
         name: aws-tcpdump-aws-cli
-        allowPrivilegeEscalation: false
+        securityContext:
+          allowPrivilegeEscalation: false
         resources:
           requests:
             memory: "128Mi"
@@ -235,7 +236,8 @@ spec:
             for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
             done
         image: public.ecr.aws/aws-cli/aws-cli:latest
-        allowPrivilegeEscalation: false
+        securityContext:
+          allowPrivilegeEscalation: false
         imagePullPolicy: Always
         name: aws-tcpdump-aws-cli
         resources:
