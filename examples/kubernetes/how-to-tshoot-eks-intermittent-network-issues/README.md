@@ -141,16 +141,20 @@ spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
       hostNetwork: true
-      serviceAccountName: s3-tcpdump-service-account
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
       containers:
-      - image: public.ecr.aws/aws-cli/aws-cli:latest
+      - image: <your-repo-with-image>
         name: aws-tcpdump-aws-cli
         securityContext:
-          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: true
+          capabilities: 
+            add:
+            - NET_RAW
+            - NET_ADMIN
+            drop:
+            - ALL
         resources:
           requests:
             memory: "128Mi"
@@ -163,7 +167,6 @@ spec:
           - -c
           - |
             #!/bin/bash
-            yum install ethtool bind-utils tcpdump wget -y 
             INSTANCE=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
             while true; 
             do 
@@ -172,8 +175,7 @@ spec:
             DAY=$(date +%d); 
             HOUR=$(date +%H); 
             MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
-            for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
+            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://anyrandomname/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             done
 ```
 
