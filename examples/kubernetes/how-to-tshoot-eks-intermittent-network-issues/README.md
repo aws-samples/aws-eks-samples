@@ -215,17 +215,12 @@ spec:
                   - aws-tcpdump
               topologyKey: kubernetes.io/hostname
             weight: 100
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
       containers:
       - command:
           - sh
           - -c
           - |
             #!/bin/bash
-            yum install ethtool bind-utils tcpdump wget -y 
             INSTANCE=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
             while true; 
             do 
@@ -234,12 +229,20 @@ spec:
             DAY=$(date +%d); 
             HOUR=$(date +%H); 
             MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -w - | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
-            for i in $(ls /sys/class/net); do ethtool -S $i; done | aws s3 cp - s3://<test-dump-eks>/tcp-dumps/${INSTANCE}/ethtool-${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}.txt
+            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             done
-        image: public.ecr.aws/aws-cli/aws-cli:latest
+        image: <docker-image-URI>
         securityContext:
-          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: true
+          capabilities: 
+            add:
+            - NET_RAW
+            - NET_ADMIN
+            drop:
+            - ALL
         imagePullPolicy: Always
         name: aws-tcpdump-aws-cli
         resources:
