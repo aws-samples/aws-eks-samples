@@ -101,6 +101,19 @@ Confirm that the Kubernetes service account is annotated with the role.
 ```
 kubectl describe serviceaccount s3-tcpdump-service-account -n s3-tcpdump
 ```
+
+#### Create Docker Image
+
+Using the Dockerfile in manifests, setup the container image to capture packet information on the worker node. On your local machine, in the directory where you chose to store the Dockerfile, run the following commands to first build your image : 
+
+```
+docker build -t <name-tag> .
+```
+
+Once the image build completes, check image on your host using `docker images`. To push your docker image to your ECR repository, follow the steps in this documentation below : 
+
+- Pushing a Docker image - https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html
+
 ---
 
 #### Particular Worker Node
@@ -142,7 +155,7 @@ spec:
       enableServiceLinks: false
       hostNetwork: true
       containers:
-      - image: <your-repo-with-image>
+      - image: <docker-image-repo-URI>
         name: aws-tcpdump-aws-cli
         securityContext:
           runAsNonRoot: true
@@ -175,7 +188,7 @@ spec:
             DAY=$(date +%d); 
             HOUR=$(date +%H); 
             MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://anyrandomname/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             done
 ```
 
@@ -231,7 +244,7 @@ spec:
             MINUTE=$(date +%M); 
             tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             done
-        image: <docker-image-URI>
+        image: <docker-image-repo-URI>
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
