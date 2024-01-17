@@ -156,6 +156,12 @@ spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
       hostNetwork: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - image: <docker-image-repo-URI>
         name: aws-tcpdump-aws-cli
@@ -224,6 +230,12 @@ spec:
       enableServiceLinks: false
       serviceAccountName: s3-tcpdump-service-account
       hostNetwork: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
