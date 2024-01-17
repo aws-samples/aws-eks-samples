@@ -309,3 +309,16 @@ kubectl delete namespace s3-tcpdump
 ```
 
 To delete S3 bucket, navigate to AWS S3 console. If you provisioned an S3 bucket only to collect tcpdumps, feel free to delete the entire bucket. If you're using an existing S3 bucket, delete the folder `tcp-dumps` to remove all pcap files. 
+
+
+---
+
+## CI Scan with Checkov
+
+The Kubernetes resource are continuously scanned using [Checkov](https://www.checkov.io/5.Policy%20Index/kubernetes.html) with some checks being skipped. See below:
+
+| Checks | Details | Reasons |
+| ---- | ---- | ---- |
+| CKV_K8S_19 | Containers should not share the host network namespace | In order to capture packets from a host level for any communication issues to any endpoint, container needs access to host network. |
+| CKV_K8S_20 | Containers should not run with allowPrivilegeEscalation | `allowPrivilegeEscalation` in Kubernetes controls whether a process can gain more privileges than its parent process. `tcpdump` requires additional privileges to capture packets on the host.  |
+
