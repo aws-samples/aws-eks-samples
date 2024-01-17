@@ -134,6 +134,8 @@ In cases where a particular node or set of nodes can not be identified that lead
 
 #### Daemonset : 
 
+**Note:** Ensure that you update the tcpdump command in the pod spec below in order to target the correct destination. Refer this doc for [examples](https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF). 
+
 ```
 apiVersion: apps/v1
 kind: DaemonSet
@@ -194,7 +196,11 @@ spec:
             done
 ```
 
+---
+
 #### Deployment :
+
+**Note:** Ensure that you update the tcpdump command in the pod spec below in order to target the correct destination. Refer this doc for [examples](https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF). 
 
 ```
 apiVersion: apps/v1
