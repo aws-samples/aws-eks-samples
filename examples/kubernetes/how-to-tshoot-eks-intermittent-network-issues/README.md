@@ -155,9 +155,11 @@ spec:
       enableServiceLinks: false
       hostNetwork: true
       containers:
-      - image: <docker-image-repo-URI>
+      - image: public.ecr.aws/j1l9f2l2/test-repo-aaresh:latest
         name: aws-tcpdump-aws-cli
         securityContext:
+          seccompProfile:
+            type: RuntimeDefault
           runAsNonRoot: true
           runAsUser: 1000
           runAsGroup: 1000
@@ -188,7 +190,7 @@ spec:
             DAY=$(date +%d); 
             HOUR=$(date +%H); 
             MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://anyrandomname/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             done
 ```
 
@@ -242,10 +244,12 @@ spec:
             DAY=$(date +%d); 
             HOUR=$(date +%H); 
             MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
+            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://anyrandomname/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
             done
-        image: <docker-image-repo-URI>
+        image: public.ecr.aws/j1l9f2l2/test-repo-aaresh:latest
         securityContext:
+          seccompProfile:
+            type: RuntimeDefault
           runAsNonRoot: true
           runAsUser: 1000
           runAsGroup: 1000
@@ -266,7 +270,6 @@ spec:
             memory: "256Mi"
             cpu: "200m"
       restartPolicy: Always
-
 ```
 
 ---
