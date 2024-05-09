@@ -95,6 +95,12 @@ Create a new namespace to run the pods in and for this example s3-tcpdump in the
 kubectl create ns s3-tcpdump
 ```
 
+Ensure that an OIDC Identity Provider is associated with the cluster. This can be done with eksctl using the command below. 
+
+```
+eksctl utils associate-iam-oidc-provider --cluster <my-cluster> --approve
+```
+
 Create an IAM role and associate it with a Kubernetes service account. You can leverage eksctl to do that for you : 
 
 ```
