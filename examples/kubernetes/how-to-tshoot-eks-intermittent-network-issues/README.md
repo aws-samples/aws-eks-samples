@@ -89,6 +89,12 @@ Create the IAM policy.
 aws iam create-policy --policy-name s3-tcpdump-policy --policy-document file://s3-tcpdump-policy.json
 ```
 
+Create a new namespace to run the pods in and for this example s3-tcpdump in the namespace used. 
+
+```
+kubectl create ns s3-tcpdump
+```
+
 Create an IAM role and associate it with a Kubernetes service account. You can leverage eksctl to do that for you : 
 
 ```
