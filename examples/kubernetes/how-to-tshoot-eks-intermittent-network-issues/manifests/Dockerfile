@@ -1,9 +1,21 @@
 FROM amazon/aws-cli:latest
 
-RUN yum install tcpdump wget -y
-RUN groupadd --gid 1000 nonroot 
-RUN useradd --uid 1000 --gid 1000 nonroot
-RUN echo 'nonroot ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers 
-RUN chgrp 1000 /usr/sbin/tcpdump 
-RUN chmod 750 /usr/sbin/tcpdump 
-RUN setcap cap_net_admin,cap_net_raw+eip /usr/sbin/tcpdump
+# Install necessary packages
+RUN yum update -y \
+    && yum install -y \
+    tcpdump \
+    libcap \
+    && yum clean all
+
+# Create a non-root user
+RUN useradd -m -s /bin/bash tcpdump_user
+
+# Add the non-root user to the tcpdump group and grant necessary capabilities
+RUN usermod -a -G tcpdump tcpdump_user \
+    && setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump
+
+# Switch to the non-root user
+USER tcpdump_user
+
+# Set the working directory
+WORKDIR /home/tcpdump_user
