@@ -1,4 +1,4 @@
-FROM amazon/aws-cli:latest
+FROM public.ecr.aws/aws-cli/aws-cli:latest
 
 # Install necessary packages
 RUN yum update -y \
