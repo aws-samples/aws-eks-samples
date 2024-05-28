@@ -34,7 +34,7 @@ You would be required to add permissions shared in the manifests section to use 
 
 ## Getting Started
 
-First, setup a namespace to run the pods in. Use the manifest called namespace.yaml in the manifests folder to do that.  
+First, setup a namespace to run the pods in. Use the manifest called namespace.yaml in the manifests folder to do that. You could choose to use any namespace preferred, however, ensure that the manifest YAMLs are also modified to use the same namespace. 
 
 Next, you would need to setup an S3 bucket or you can choose to use an existing S3 bucket. Should you need to create a new S3 bucket, please refer the best pracatices document below to help setup S3 bucket with server access logging that does NOT have public access enabled : 
 
@@ -87,12 +87,6 @@ Create the IAM policy.
 
 ```
 aws iam create-policy --policy-name s3-tcpdump-policy --policy-document file://s3-tcpdump-policy.json
-```
-
-Create a new namespace to run the pods in and for this example s3-tcpdump in the namespace used. You could choose to use any namespace preferred, however, ensure that the manifest YAMLs are also modified to use the same namespace. 
-
-```
-kubectl create ns s3-tcpdump
 ```
 
 Ensure that an OIDC Identity Provider is associated with the cluster. This can be done with eksctl using the command below. 
