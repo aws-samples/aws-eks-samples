@@ -1,4 +1,4 @@
-FROM aws-cli/asw-cli
+FROM public.ecr.aws/aws-cli/aws-cli
 
 # Install necessary packages
 RUN yum update -y \
