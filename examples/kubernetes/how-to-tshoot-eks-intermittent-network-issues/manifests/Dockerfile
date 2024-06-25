@@ -3,6 +3,7 @@ FROM public.ecr.aws/aws-cli/aws-cli
 # Install necessary packages
 RUN yum update -y \
     && yum install -y \
+    lsof \
     tcpdump \
     libcap \
     && yum clean all
@@ -19,3 +20,5 @@ USER tcpdump_user
 
 # Set the working directory
 WORKDIR /home/tcpdump_user
+
+ENTRYPOINT ["/bin/sh"]
