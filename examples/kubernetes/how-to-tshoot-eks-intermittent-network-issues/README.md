@@ -140,7 +140,7 @@ In cases where a particular node or set of nodes can not be identified that lead
 
 #### Daemonset : 
 
-**Note:** Ensure that you update the tcpdump command in the pod spec below in order to target the correct destination. Refer this doc for [examples](https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF). 
+**Note:** Ensure that you update tcpdump command in the `tcpdump` container of the manifest below in order to target the correct destination and port. The default command specified will collect tcpdump over any interface, any protocol and any source/destination. Refer this doc for [examples](https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF). 
 
 ```
 apiVersion: apps/v1
@@ -159,31 +159,19 @@ spec:
       labels:
         app: aws-tcpdump
     spec:
+      hostNetwork: true
       automountServiceAccountToken: false
       enableServiceLinks: false
-      hostNetwork: true
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
+      serviceAccountName: s3-tcpdump-service-account
+      volumes:
+      - name: tcpdump-data
+        emptyDir: {}
       containers:
-      - image: <docker-image-repo-URI>
-        name: aws-tcpdump-aws-cli
-        securityContext:
-          seccompProfile:
-            type: RuntimeDefault
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
-          allowPrivilegeEscalation: true
-          capabilities: 
-            add:
-            - NET_RAW
-            - NET_ADMIN
-            drop:
-            - ALL
+      - name: tcpdump
+        image: <docker-image-repo-URI>
+        imagePullPolicy: Always
+        command: ["tcpdump"]
+        args: ["-i", "any", "-C 1", "-w", "/data/capture.pcap"]
         resources:
           requests:
             memory: "128Mi"
@@ -191,101 +179,150 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
-        command:
-          - sh
-          - -c
-          - |
-            #!/bin/bash
-            INSTANCE=$(TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
-            while true; 
-            do 
-            YEAR=$(date +%Y); 
-            MONTH=$(date +%m); 
-            DAY=$(date +%d); 
-            HOUR=$(date +%H); 
-            MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
-            done
+        securityContext:
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            add:
+            - NET_RAW
+            - NET_ADMIN
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tcpdump-data
+          mountPath: /data
+      - name: s3-uploader
+        image: <docker-image-repo-URI>
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          #!/bin/bash
+
+          # Directory where pcap files are stored
+          pcap_directory="/data"
+          bucket_name="anyrandomname"
+
+          # Set Instance ID
+          INSTANCE=$(TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+
+          # Track the last uploaded file number
+          last_uploaded_file_number=-1
+
+          # Function to upload a file to S3 and then delete it
+          upload_and_cleanup() {
+              local file=$1
+              # Upload file to S3
+              aws s3 cp "${pcap_directory}/${file}" "s3://${bucket_name}/captures/$INSTANCE/capture-$(date +"%Y-%m-%d-%H:%M:%S")"
+              if [ $? -eq 0 ]; then  # Check if the upload was successful
+                  echo "Upload successful, deleting ${file}"
+                  rm -f "${pcap_directory}/${file}"  # Delete the file after successful upload
+              else
+                  echo "Failed to upload ${file}"
+              fi
+          }
+
+          # Main loop
+          while true; do
+              # List all pcap files, sorted numerically
+              IFS=$'\n' files=($(ls ${pcap_directory}/capture.pcap* 2>/dev/null | sort -V))
+              unset IFS
+              file_count=${#files[@]}
+
+              if [[ $file_count -lt 1 ]]; then
+                  echo "No files to process. Waiting..."
+                  sleep 60  # wait for files to be generated
+                  continue
+              fi
+
+              # Process all files except the last one to ensure it is fully written
+              for file in "${files[@]::file_count-1}"; do
+                  file_basename=$(basename "$file")
+                  file_number=${file_basename#capture.pcap}
+
+                  if (( file_number > last_uploaded_file_number )); then
+                      upload_and_cleanup "$file_basename"
+                      last_uploaded_file_number=$file_number
+                  fi
+              done
+
+              sleep 60  # Sleep before checking again
+          done
+        volumeMounts:
+        - name: tcpdump-data
+          mountPath: /data
+        securityContext:
+          readOnlyRootFilesystem: false
+          seccompProfile:
+            type: RuntimeDefault
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
 ```
 
 ---
 
 #### Deployment :
 
-**Note:** Ensure that you update the tcpdump command in the pod spec below in order to target the correct destination. Refer this doc for [examples](https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF). 
+**Note:** Ensure that you update tcpdump command in the `tcpdump` container of the manifest below in order to target the correct destination and port. The default command specified will collect tcpdump over any interface, any protocol and any source/destination. Refer this doc for [examples](https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF). 
 
 ```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aws-tcpdump
+  name: tcpdump-deployment
   namespace: s3-tcpdump
-  labels:
-    app: aws-tcpdump
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aws-tcpdump
+      app: tcpdump
   template:
     metadata:
       labels:
-        app: aws-tcpdump
+        app: tcpdump
     spec:
-      automountServiceAccountToken: false
-      enableServiceLinks: false
-      serviceAccountName: s3-tcpdump-service-account
-      hostNetwork: true
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - aws-tcpdump
-              topologyKey: kubernetes.io/hostname
-            weight: 100
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - tcpdump
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      hostNetwork: true
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      serviceAccountName: s3-tcpdump-service-account
+      volumes:
+      - name: tcpdump-data
+        emptyDir: {}
       containers:
-      - command:
-          - sh
-          - -c
-          - |
-            #!/bin/bash
-            INSTANCE=$(TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
-            while true; 
-            do 
-            YEAR=$(date +%Y); 
-            MONTH=$(date +%m); 
-            DAY=$(date +%d); 
-            HOUR=$(date +%H); 
-            MINUTE=$(date +%M); 
-            tcpdump -i any -W1 -G60 -Z 1000 -w - | aws s3 cp - s3://<your-S3-bucket-name>/tcp-dumps/${INSTANCE}/${YEAR}-${MONTH}-${DAY}-${HOUR}:${MINUTE}-dump.pcap;
-            done
+      - name: tcpdump
         image: <docker-image-repo-URI>
-        securityContext:
-          seccompProfile:
-            type: RuntimeDefault
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
-          allowPrivilegeEscalation: true
-          capabilities: 
-            add:
-            - NET_RAW
-            - NET_ADMIN
-            drop:
-            - ALL
         imagePullPolicy: Always
-        name: aws-tcpdump-aws-cli
+        command: ["tcpdump"]
+        args: ["-i", "any", "-C 1", "-w", "/data/capture.pcap"]
         resources:
           requests:
             memory: "128Mi"
@@ -293,7 +330,101 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "200m"
-      restartPolicy: Always
+        securityContext:
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            add:
+            - NET_RAW
+            - NET_ADMIN
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tcpdump-data
+          mountPath: /data
+      - name: s3-uploader
+        image: <docker-image-repo-URI>
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          #!/bin/bash
+
+          # Directory where pcap files are stored
+          pcap_directory="/data"
+          bucket_name="anyrandomname"
+
+          # Set Instance ID
+          INSTANCE=$(TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"` && curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+
+          # Track the last uploaded file number
+          last_uploaded_file_number=-1
+
+          # Function to upload a file to S3 and then delete it
+          upload_and_cleanup() {
+              local file=$1
+              # Upload file to S3
+              aws s3 cp "${pcap_directory}/${file}" "s3://${bucket_name}/captures/$INSTANCE/capture-$(date +"%Y-%m-%d-%H:%M:%S")"
+              if [ $? -eq 0 ]; then  # Check if the upload was successful
+                  echo "Upload successful, deleting ${file}"
+                  rm -f "${pcap_directory}/${file}"  # Delete the file after successful upload
+              else
+                  echo "Failed to upload ${file}"
+              fi
+          }
+
+          # Main loop
+          while true; do
+              # List all pcap files, sorted numerically
+              IFS=$'\n' files=($(ls ${pcap_directory}/capture.pcap* 2>/dev/null | sort -V))
+              unset IFS
+              file_count=${#files[@]}
+
+              if [[ $file_count -lt 1 ]]; then
+                  echo "No files to process. Waiting..."
+                  sleep 60  # wait for files to be generated
+                  continue
+              fi
+
+              # Process all files except the last one to ensure it is fully written
+              for file in "${files[@]::file_count-1}"; do
+                  file_basename=$(basename "$file")
+                  file_number=${file_basename#capture.pcap}
+
+                  if (( file_number > last_uploaded_file_number )); then
+                      upload_and_cleanup "$file_basename"
+                      last_uploaded_file_number=$file_number
+                  fi
+              done
+
+              sleep 60  # Sleep before checking again
+          done
+        volumeMounts:
+        - name: tcpdump-data
+          mountPath: /data
+        securityContext:
+          readOnlyRootFilesystem: false
+          seccompProfile:
+            type: RuntimeDefault
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
 ```
 
 ---
@@ -304,14 +435,14 @@ Once the required data is collected analyzed, please clean up the resources crea
 To clean up deployment, please run : 
 
 ```
-kubectl delete deployment aws-tcpdump -n s3-tcpdump
+kubectl delete deployment tcpdump -n s3-tcpdump
 ```
 
 
 To clean up daemonset, please run : 
 
 ```
-kubectl delete daemonset aws-tcpdump -n s3-tcpdump
+kubectl delete daemonset tcpdump -n s3-tcpdump
 ```
 
 Once the pods are removed from the cluster, delete the service account using : 
@@ -338,5 +469,4 @@ The Kubernetes resource are continuously scanned using [Checkov](https://www.che
 | Checks | Details | Reasons |
 | ---- | ---- | ---- |
 | CKV_K8S_19 | Containers should not share the host network namespace | In order to capture packets from a host level for any communication issues to any endpoint, container needs access to host network. |
-| CKV_K8S_20 | Containers should not run with allowPrivilegeEscalation | `allowPrivilegeEscalation` in Kubernetes controls whether a process can gain more privileges than its parent process. `tcpdump` requires additional privileges to capture packets on the host.  |
 
