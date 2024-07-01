@@ -457,7 +457,7 @@ And finally, the namespace can be deleted using :
 kubectl delete namespace s3-tcpdump
 ```
 
-To delete S3 bucket, navigate to AWS S3 console. If you provisioned an S3 bucket only to collect tcpdumps, feel free to delete the entire bucket. If you're using an existing S3 bucket, delete the folder `tcp-dumps` to remove all pcap files. 
+To delete S3 bucket, navigate to AWS S3 console. If you provisioned an S3 bucket only to collect tcpdumps, feel free to delete the entire bucket. If you're using an existing S3 bucket, delete the folder `captures` to remove all pcap files. 
 
 
 ---
