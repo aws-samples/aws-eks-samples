@@ -16,7 +16,7 @@ jobs:
       contents: read
       security-events: write    
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Test with Checkov
         id: checkov
         uses: bridgecrewio/checkov-action@master
@@ -31,7 +31,7 @@ jobs:
           # soft_fail: true
 
       - name: Expose report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
           name: SARIF results
