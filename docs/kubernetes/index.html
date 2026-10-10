@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kubernetes Examples · Amazon EKS Samples</title>
+  <meta name="description" content="Kubernetes manifests for Amazon EKS — storage, networking, IRSA, logging, disaster recovery, and troubleshooting.">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<!-- ─── Navigation ─────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="../" class="nav-brand">
+      <span class="nav-brand-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3"/>
+          <circle cx="8" cy="2.5" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="13.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="2.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <line x1="8" y1="5" x2="8" y2="4"/>
+          <line x1="10.5" y1="9.5" x2="11.8" y2="10.2"/>
+          <line x1="5.5" y1="9.5" x2="4.2" y2="10.2"/>
+        </svg>
+      </span>
+      EKS Samples
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a href="../eksctl/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--blue)"></span>
+          eksctl
+        </a>
+      </li>
+      <li>
+        <a href="../kubernetes/" class="nav-link active">
+          <span class="nav-link-dot" style="background:var(--teal)"></span>
+          Kubernetes
+        </a>
+      </li>
+      <li>
+        <a href="../helm/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--purple)"></span>
+          Helm
+        </a>
+      </li>
+    </ul>
+
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes" target="_blank" rel="noopener" class="nav-github">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      View on GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Category Hero ─────────────────────────────────── -->
+<div class="cat-hero cat-hero--kubernetes">
+  <div class="cat-hero-inner">
+    <div class="cat-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+        <line x1="12" y1="9" x2="12" y2="3.5"/>
+        <line x1="12" y1="15" x2="12" y2="20.5"/>
+        <line x1="9.4" y1="10.5" x2="5.1" y2="7.5"/>
+        <line x1="14.6" y1="13.5" x2="18.9" y2="16.5"/>
+        <line x1="9.4" y1="13.5" x2="5.1" y2="16.5"/>
+        <line x1="14.6" y1="10.5" x2="18.9" y2="7.5"/>
+      </svg>
+    </div>
+
+    <div class="cat-hero-body">
+      <div class="cat-breadcrumb">
+        <a href="../">EKS Samples</a>
+        <span class="cat-breadcrumb-sep">/</span>
+        <span>Kubernetes</span>
+      </div>
+      <h1>Kubernetes Examples</h1>
+      <p>
+        Manifests for real-world EKS workloads spanning <strong>storage</strong>, <strong>networking</strong>,
+        <strong>security</strong>, <strong>observability</strong>, and <strong>disaster recovery</strong>.
+        Apply directly to any EKS cluster.
+      </p>
+      <div class="cat-hero-tags">
+        <span class="cat-tag">EBS CSI Driver</span>
+        <span class="cat-tag">NFS CSI Driver</span>
+        <span class="cat-tag">IRSA</span>
+        <span class="cat-tag">Fluent Bit</span>
+        <span class="cat-tag">OpenSearch</span>
+        <span class="cat-tag">NetworkPolicy</span>
+        <span class="cat-tag">VolumeSnapshot</span>
+        <span class="cat-tag">Topology Hints</span>
+      </div>
+    </div>
+
+    <!-- Decorative large icon -->
+    <div class="cat-hero-art" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3"/>
+        <line x1="12" y1="9" x2="12" y2="3.5"/>
+        <line x1="12" y1="15" x2="12" y2="20.5"/>
+        <line x1="9.4" y1="10.5" x2="5.1" y2="7.5"/>
+        <line x1="14.6" y1="13.5" x2="18.9" y2="16.5"/>
+        <line x1="9.4" y1="13.5" x2="5.1" y2="16.5"/>
+        <line x1="14.6" y1="10.5" x2="18.9" y2="7.5"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Examples Grid ─────────────────────────────────── -->
+<section class="examples-section">
+  <div class="examples-section-title">10 Examples</div>
+
+  <div class="examples-grid">
+
+    <!-- 1: Backup & Restore EBS PVC -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-backup-restore-ebs-pvc" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Backup &amp; Restore EBS PVC</h3>
+        <span class="ex-card-num">01</span>
+      </div>
+      <p>
+        Create an EBS volume snapshot from a running pod's PVC, restore it to a new PVC, and dynamically resize the restored volume — all without downtime.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">EBS CSI Driver</span>
+        <span class="svc-tag">VolumeSnapshot</span>
+        <span class="svc-tag">external-snapshotter</span>
+        <span class="svc-tag">StorageClass</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 2: DR Multi-Account -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-dr-multi-account" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Cross-Account Disaster Recovery</h3>
+        <span class="ex-card-num">02</span>
+      </div>
+      <p>
+        Snapshot an EBS PVC in one AWS account's EKS cluster and restore it as a statically provisioned PV in a second account. Covers KMS key sharing for encrypted volumes.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">EBS CSI Driver</span>
+        <span class="svc-tag">AWS KMS</span>
+        <span class="svc-tag">EC2 Snapshot Sharing</span>
+        <span class="svc-tag">Multi-Account</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 3: Proxy Protocol CLB -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-enable-proxy-procotcol-clb" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Proxy Protocol on Classic Load Balancer</h3>
+        <span class="ex-card-num">03</span>
+      </div>
+      <p>
+        Enable Proxy Protocol v2 on a Classic Load Balancer fronting an NGINX Ingress Controller so that real client IP addresses are visible inside pods.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">NGINX Ingress</span>
+        <span class="svc-tag">AWS CLB / ELB</span>
+        <span class="svc-tag">Proxy Protocol</span>
+        <span class="svc-tag">aws-cli</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 4: Fargate OpenSearch Logging -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-logging-eks-fargate-opensearch" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Fargate Logging to OpenSearch</h3>
+        <span class="ex-card-num">04</span>
+      </div>
+      <p>
+        Configure <strong>Fluent Bit</strong> on an EKS Fargate cluster to ship container logs to an AWS OpenSearch domain (VPC or public), covering OpenSearch versions 1.3 and 2.3.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">EKS Fargate</span>
+        <span class="svc-tag">Fluent Bit</span>
+        <span class="svc-tag">AWS OpenSearch</span>
+        <span class="svc-tag">IAM</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 5: Python SDK in Containers -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-python-sdk-containers" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>AWS Python SDK in Containers (IRSA)</h3>
+        <span class="ex-card-num">05</span>
+      </div>
+      <p>
+        Deploy a pod running a Python AWS SDK container authenticated via <strong>IRSA</strong> (IAM Roles for Service Accounts using OIDC web identity). The canonical pattern for secure SDK access in EKS.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">IRSA</span>
+        <span class="svc-tag">OIDC</span>
+        <span class="svc-tag">IAM</span>
+        <span class="svc-tag">boto3</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 6: NFS CSI Driver -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-setup-nfs-csi-eks" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>NFS CSI Driver with EFS</h3>
+        <span class="ex-card-num">06</span>
+      </div>
+      <p>
+        Install the Kubernetes NFS CSI driver on EKS backed by Amazon EFS, bypassing the 1,000 access-point limit of the EFS CSI driver. Uses subdirectory-based dynamic provisioning.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">NFS CSI Driver</span>
+        <span class="svc-tag">Amazon EFS</span>
+        <span class="svc-tag">Dynamic Provisioning</span>
+        <span class="svc-tag">EC2 Security Groups</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 7: Snapshot/Restore/Resize StatefulSet -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-snapshot-restore-resize-sts" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Snapshot, Restore &amp; Resize StatefulSet PVCs</h3>
+        <span class="ex-card-num">07</span>
+      </div>
+      <p>
+        Create EBS volume snapshots for each PVC of a <strong>Cassandra StatefulSet</strong>, delete and restore the StatefulSet from snapshots, then dynamically resize the restored PVCs.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">EBS CSI Driver</span>
+        <span class="svc-tag">VolumeSnapshot</span>
+        <span class="svc-tag">StatefulSet</span>
+        <span class="svc-tag">Cassandra</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 8: Topology Awareness Hints -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-topology-awareness-hints" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Topology Aware Routing</h3>
+        <span class="ex-card-num">08</span>
+      </div>
+      <p>
+        Use Kubernetes <strong>Topology Aware Hints</strong> to keep in-zone traffic local, reducing inter-AZ data transfer costs and latency. Covers caveats with HPA, Cluster Autoscaler, and Spot instances.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">Topology Hints</span>
+        <span class="svc-tag">EndpointSlice</span>
+        <span class="svc-tag">kube-proxy</span>
+        <span class="svc-tag">Multi-AZ</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 9: Troubleshoot Network Issues -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-tshoot-eks-intermittent-network-issues" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Troubleshoot Intermittent Network Issues</h3>
+        <span class="ex-card-num">09</span>
+      </div>
+      <p>
+        Deploy a <code>tcpdump</code> DaemonSet that continuously captures node-level packet data and streams <code>.pcap</code> files to S3 — for post-incident analysis of connectivity problems.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">tcpdump</span>
+        <span class="svc-tag">DaemonSet</span>
+        <span class="svc-tag">Amazon S3</span>
+        <span class="svc-tag">IRSA</span>
+        <span class="svc-tag">CloudWatch</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 10: Network Policies -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/network-policies" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>Network Policies (VPC CNI)</h3>
+        <span class="ex-card-num">10</span>
+      </div>
+      <p>
+        Reusable <code>NetworkPolicy</code> building blocks — <code>allow-all-egress</code>, <code>allow-all-ingress</code>, and <code>default-deny</code> — for controlling pod-to-pod traffic with the Amazon VPC CNI plugin.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">NetworkPolicy</span>
+        <span class="svc-tag">Amazon VPC CNI</span>
+        <span class="svc-tag">Pod Security</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ─── Footer ───────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand"><strong>Amazon EKS Samples</strong> &nbsp;·&nbsp; Licensed under MIT-0</span>
+    <ul class="footer-links">
+      <li><a href="../">Home</a></li>
+      <li><a href="../eksctl/">eksctl</a></li>
+      <li><a href="../helm/">Helm</a></li>
+      <li><a href="https://github.com/aws-samples/aws-eks-samples" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+
+</body>
+</html>
