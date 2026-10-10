@@ -16,7 +16,7 @@ This project provides ready-to-use examples across three categories:
 
 | Category | Description |
 |---|---|
-| [eksctl examples](examples/eksctl/) | Cluster config files for common EKS setups |
+| [Eksctl Samples](examples/eksctl/) | Cluster config files for common EKS setups |
 | [Kubernetes manifests](examples/kubernetes/) | Workload samples, networking, storage |
 | [Helm charts](examples/helm/) | Helm-based deployments |
 
