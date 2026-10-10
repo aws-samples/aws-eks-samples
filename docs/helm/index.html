@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helm Examples · Amazon EKS Samples</title>
+  <meta name="description" content="Helm chart examples for Amazon EKS — coming soon.">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<!-- ─── Navigation ─────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="../" class="nav-brand">
+      <span class="nav-brand-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3"/>
+          <circle cx="8" cy="2.5" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="13.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="2.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <line x1="8" y1="5" x2="8" y2="4"/>
+          <line x1="10.5" y1="9.5" x2="11.8" y2="10.2"/>
+          <line x1="5.5" y1="9.5" x2="4.2" y2="10.2"/>
+        </svg>
+      </span>
+      EKS Samples
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a href="../eksctl/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--blue)"></span>
+          eksctl
+        </a>
+      </li>
+      <li>
+        <a href="../kubernetes/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--teal)"></span>
+          Kubernetes
+        </a>
+      </li>
+      <li>
+        <a href="../helm/" class="nav-link active">
+          <span class="nav-link-dot" style="background:var(--purple)"></span>
+          Helm
+        </a>
+      </li>
+    </ul>
+
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/helm" target="_blank" rel="noopener" class="nav-github">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      View on GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Category Hero ─────────────────────────────────── -->
+<div class="cat-hero cat-hero--helm">
+  <div class="cat-hero-inner">
+    <div class="cat-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3.5"/>
+        <line x1="12" y1="8.5"  x2="12" y2="2"/>
+        <line x1="12" y1="15.5" x2="12" y2="22"/>
+        <line x1="8.5"  y1="12" x2="2"  y2="12"/>
+        <line x1="15.5" y1="12" x2="22" y2="12"/>
+        <line x1="9.97" y1="9.97"   x2="5.64"  y2="5.64"/>
+        <line x1="14.03" y1="14.03" x2="18.36" y2="18.36"/>
+        <line x1="9.97"  y1="14.03" x2="5.64"  y2="18.36"/>
+        <line x1="14.03" y1="9.97"  x2="18.36" y2="5.64"/>
+      </svg>
+    </div>
+
+    <div class="cat-hero-body">
+      <div class="cat-breadcrumb">
+        <a href="../">EKS Samples</a>
+        <span class="cat-breadcrumb-sep">/</span>
+        <span>Helm</span>
+      </div>
+      <h1>Helm Examples</h1>
+      <p>
+        Helm charts for deploying applications on Amazon EKS.
+        This section is actively being built out — check back soon or contribute a chart on GitHub.
+      </p>
+      <div class="cat-hero-tags">
+        <span class="cat-tag">Helm 3</span>
+        <span class="cat-tag">OCI Charts</span>
+        <span class="cat-tag">values.yaml</span>
+        <span class="cat-tag">Templating</span>
+      </div>
+    </div>
+
+    <!-- Decorative large icon -->
+    <div class="cat-hero-art" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3.5"/>
+        <line x1="12" y1="8.5"  x2="12" y2="2"/>
+        <line x1="12" y1="15.5" x2="12" y2="22"/>
+        <line x1="8.5"  y1="12" x2="2"  y2="12"/>
+        <line x1="15.5" y1="12" x2="22" y2="12"/>
+        <line x1="9.97" y1="9.97"   x2="5.64"  y2="5.64"/>
+        <line x1="14.03" y1="14.03" x2="18.36" y2="18.36"/>
+        <line x1="9.97"  y1="14.03" x2="5.64"  y2="18.36"/>
+        <line x1="14.03" y1="9.97"  x2="18.36" y2="5.64"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Coming Soon ───────────────────────────────────── -->
+<div class="coming-soon-wrap">
+  <div class="cs-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="3.5"/>
+      <line x1="12" y1="8.5"  x2="12" y2="2"/>
+      <line x1="12" y1="15.5" x2="12" y2="22"/>
+      <line x1="8.5"  y1="12" x2="2"  y2="12"/>
+      <line x1="15.5" y1="12" x2="22" y2="12"/>
+      <line x1="9.97" y1="9.97"   x2="5.64"  y2="5.64"/>
+      <line x1="14.03" y1="14.03" x2="18.36" y2="18.36"/>
+    </svg>
+  </div>
+
+  <h2>Charts Coming Soon</h2>
+  <p>
+    This category is in active development. We're working on Helm chart examples for common EKS workload patterns.
+    Contributions are welcome — take a look at the existing <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/helm" target="_blank" rel="noopener">helm directory on GitHub</a>
+    and open a pull request.
+  </p>
+
+  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <a href="https://github.com/aws-samples/aws-eks-samples/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener" class="btn btn-primary" style="background:var(--purple); color:#fff;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      Contribute a Chart
+    </a>
+    <a href="../" class="btn btn-outline">
+      ← Back to Home
+    </a>
+  </div>
+
+  <!-- What to expect -->
+  <div style="margin-top:56px; text-align:left;">
+    <p style="font-size:0.8125rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); margin-bottom:16px;">
+      Planned examples
+    </p>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:12px;">
+        <span style="font-size:1rem;">📦</span>
+        <div>
+          <div style="font-size:0.875rem; font-weight:600; color:var(--text); margin-bottom:2px;">Application Deployment Chart</div>
+          <div style="font-size:0.8125rem; color:var(--text-muted);">Parameterised chart for deploying containerised apps with configurable ingress, HPA, and IRSA.</div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:12px;">
+        <span style="font-size:1rem;">🔐</span>
+        <div>
+          <div style="font-size:0.875rem; font-weight:600; color:var(--text); margin-bottom:2px;">Secrets Manager Integration Chart</div>
+          <div style="font-size:0.8125rem; color:var(--text-muted);">Chart that wires up AWS Secrets Manager using the Secrets Store CSI Driver and IRSA.</div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:12px;">
+        <span style="font-size:1rem;">📊</span>
+        <div>
+          <div style="font-size:0.875rem; font-weight:600; color:var(--text); margin-bottom:2px;">Observability Stack Chart</div>
+          <div style="font-size:0.8125rem; color:var(--text-muted);">Deploy CloudWatch Container Insights and Fluent Bit as a single chart with sensible defaults for EKS.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ───────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand"><strong>Amazon EKS Samples</strong> &nbsp;·&nbsp; Licensed under MIT-0</span>
+    <ul class="footer-links">
+      <li><a href="../">Home</a></li>
+      <li><a href="../eksctl/">eksctl</a></li>
+      <li><a href="../kubernetes/">Kubernetes</a></li>
+      <li><a href="https://github.com/aws-samples/aws-eks-samples" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+
+</body>
+</html>

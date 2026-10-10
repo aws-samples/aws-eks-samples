@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eksctl Examples · Amazon EKS Samples</title>
+  <meta name="description" content="eksctl ClusterConfig examples for Amazon EKS — Auto Mode, Fargate, Ubuntu node groups, and more.">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<!-- ─── Navigation ─────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="../" class="nav-brand">
+      <span class="nav-brand-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3"/>
+          <circle cx="8" cy="2.5" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="13.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="2.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <line x1="8" y1="5" x2="8" y2="4"/>
+          <line x1="10.5" y1="9.5" x2="11.8" y2="10.2"/>
+          <line x1="5.5" y1="9.5" x2="4.2" y2="10.2"/>
+        </svg>
+      </span>
+      EKS Samples
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a href="../eksctl/" class="nav-link active">
+          <span class="nav-link-dot" style="background:var(--blue)"></span>
+          eksctl
+        </a>
+      </li>
+      <li>
+        <a href="../kubernetes/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--teal)"></span>
+          Kubernetes
+        </a>
+      </li>
+      <li>
+        <a href="../helm/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--purple)"></span>
+          Helm
+        </a>
+      </li>
+    </ul>
+
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/eksctl" target="_blank" rel="noopener" class="nav-github">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      View on GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Category Hero ─────────────────────────────────── -->
+<div class="cat-hero cat-hero--eksctl">
+  <div class="cat-hero-inner">
+    <div class="cat-hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="4.5" rx="1.5"/>
+        <rect x="2" y="9.75" width="20" height="4.5" rx="1.5"/>
+        <rect x="2" y="16.5" width="20" height="4.5" rx="1.5"/>
+        <circle cx="18.5" cy="5.25" r="0.9" fill="currentColor" stroke="none"/>
+        <circle cx="18.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+        <circle cx="18.5" cy="18.75" r="0.9" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+
+    <div class="cat-hero-body">
+      <div class="cat-breadcrumb">
+        <a href="../">EKS Samples</a>
+        <span class="cat-breadcrumb-sep">/</span>
+        <span>eksctl</span>
+      </div>
+      <h1>eksctl Examples</h1>
+      <p>
+        <code>ClusterConfig</code> YAML files for creating and managing Amazon EKS clusters with <strong>eksctl</strong>.
+        Each example covers a specific cluster topology or node group configuration you can apply directly.
+      </p>
+      <div class="cat-hero-tags">
+        <span class="cat-tag">eksctl</span>
+        <span class="cat-tag">EKS Auto Mode</span>
+        <span class="cat-tag">Fargate</span>
+        <span class="cat-tag">IAM Roles</span>
+        <span class="cat-tag">Ubuntu Nodes</span>
+        <span class="cat-tag">AWS CLI</span>
+      </div>
+    </div>
+
+    <!-- Decorative large icon -->
+    <div class="cat-hero-art" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="4.5" rx="1.5"/>
+        <rect x="2" y="9.75" width="20" height="4.5" rx="1.5"/>
+        <rect x="2" y="16.5" width="20" height="4.5" rx="1.5"/>
+        <circle cx="18.5" cy="5.25" r="0.9" fill="currentColor" stroke="none"/>
+        <circle cx="18.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+        <circle cx="18.5" cy="18.75" r="0.9" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Examples Grid ─────────────────────────────────── -->
+<section class="examples-section">
+  <div class="examples-section-title">5 Examples</div>
+
+  <div class="examples-grid">
+
+    <!-- 1: Get Started -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/eksctl/how-to-get-started" target="_blank" rel="noopener" class="ex-card ex-card--eksctl">
+      <div class="ex-card-top">
+        <h3>Get Started with EKS</h3>
+        <span class="ex-card-num">01</span>
+      </div>
+      <p>
+        The simplest starting point — a <code>create-cluster.yaml</code> ClusterConfig file that provisions a basic EKS cluster with default managed node groups.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">eksctl</span>
+        <span class="svc-tag">Managed Node Groups</span>
+        <span class="svc-tag">aws-cli</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 2: Auto Mode -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/eksctl/how-to-eks-auto-mode" target="_blank" rel="noopener" class="ex-card ex-card--eksctl">
+      <div class="ex-card-top">
+        <h3>EKS Auto Mode Cluster</h3>
+        <span class="ex-card-num">02</span>
+      </div>
+      <p>
+        Create a cluster with <strong>EKS Auto Mode</strong> enabled — AWS fully manages node provisioning, patching, and scaling. Includes a config to enable Auto Mode on an existing cluster.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">EKS Auto Mode</span>
+        <span class="svc-tag">eksctl</span>
+        <span class="svc-tag">aws-cli</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 3: Existing IAM Role -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/eksctl/how-to-existing-iamrole" target="_blank" rel="noopener" class="ex-card ex-card--eksctl">
+      <div class="ex-card-top">
+        <h3>Reuse an Existing IAM Role</h3>
+        <span class="ex-card-num">03</span>
+      </div>
+      <p>
+        Create a cluster with both managed and unmanaged node groups that attach to a <strong>pre-existing IAM role</strong> instead of letting eksctl create one — useful in organisations with strict IAM governance.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">IAM</span>
+        <span class="svc-tag">Managed Node Groups</span>
+        <span class="svc-tag">Unmanaged Node Groups</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 4: Ubuntu Node Groups -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/eksctl/how-to-ubuntu-nodegroups" target="_blank" rel="noopener" class="ex-card ex-card--eksctl">
+      <div class="ex-card-top">
+        <h3>Ubuntu Node Groups</h3>
+        <span class="ex-card-num">04</span>
+      </div>
+      <p>
+        Add self-managed and managed node groups running <strong>Ubuntu 20.04</strong> to an existing cluster. Includes custom bootstrap commands for <code>containerd</code>, max-pods tuning, and DNS configuration.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">Ubuntu AMI</span>
+        <span class="svc-tag">containerd</span>
+        <span class="svc-tag">Self-managed Nodes</span>
+        <span class="svc-tag">aws-cli</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 5: Fargate -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/eksctl/how-to-eks-fargate" target="_blank" rel="noopener" class="ex-card ex-card--eksctl">
+      <div class="ex-card-top">
+        <h3>EKS with Fargate Profile</h3>
+        <span class="ex-card-num">05</span>
+      </div>
+      <p>
+        Create an EKS cluster with a <strong>Fargate profile</strong> for fully serverless node management — no EC2 instances to patch or scale. Ideal for burst workloads and lightweight microservices.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">EKS Fargate</span>
+        <span class="svc-tag">Serverless</span>
+        <span class="svc-tag">eksctl</span>
+        <span class="svc-tag">aws-cli</span>
+      </div>
+      <span class="ex-card-link">
+        View example
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ─── Footer ───────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand"><strong>Amazon EKS Samples</strong> &nbsp;·&nbsp; Licensed under MIT-0</span>
+    <ul class="footer-links">
+      <li><a href="../">Home</a></li>
+      <li><a href="../kubernetes/">Kubernetes</a></li>
+      <li><a href="../helm/">Helm</a></li>
+      <li><a href="https://github.com/aws-samples/aws-eks-samples" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+
+</body>
+</html>

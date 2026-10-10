@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon EKS Samples</title>
+  <meta name="description" content="Example manifests, eksctl configs, and Helm charts you can deploy on Amazon EKS.">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ─── Navigation ─────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="." class="nav-brand">
+      <span class="nav-brand-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3"/>
+          <circle cx="8" cy="2.5" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="13.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="2.5" cy="11" r="1.5" fill="currentColor" stroke="none"/>
+          <line x1="8" y1="5" x2="8" y2="4"/>
+          <line x1="10.5" y1="9.5" x2="11.8" y2="10.2"/>
+          <line x1="5.5" y1="9.5" x2="4.2" y2="10.2"/>
+        </svg>
+      </span>
+      EKS Samples
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a href="eksctl/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--blue)"></span>
+          eksctl
+        </a>
+      </li>
+      <li>
+        <a href="kubernetes/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--teal)"></span>
+          Kubernetes
+        </a>
+      </li>
+      <li>
+        <a href="helm/" class="nav-link">
+          <span class="nav-link-dot" style="background:var(--purple)"></span>
+          Helm
+        </a>
+      </li>
+    </ul>
+
+    <a href="https://github.com/aws-samples/aws-eks-samples" target="_blank" rel="noopener" class="nav-github">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Hero ─────────────────────────────────────────────── -->
+<div class="hero-wrap">
+  <div class="hero">
+    <!-- Left: text -->
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        aws-samples · Open Source
+      </div>
+
+      <h1>Amazon <em>EKS Samples</em></h1>
+
+      <p class="hero-desc">
+        Ready-to-use manifests, <code>eksctl</code> cluster configs, and Helm charts
+        for learning and experimenting with Amazon EKS workloads.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#categories" class="btn btn-primary">
+          Browse Examples
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+          </svg>
+        </a>
+        <a href="https://github.com/aws-samples/aws-eks-samples" target="_blank" rel="noopener" class="btn btn-outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          View on GitHub
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">15</span>
+          <span class="hero-meta-label">Examples</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">3</span>
+          <span class="hero-meta-label">Categories</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">MIT-0</span>
+          <span class="hero-meta-label">License</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: cluster visualization -->
+    <div class="hero-art">
+      <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <!-- Radial glow behind control plane -->
+          <radialGradient id="cpGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#ff9900" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#ff9900" stop-opacity="0"/>
+          </radialGradient>
+          <!-- Dashed line gradient: orange → blue -->
+          <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+            <stop offset="0%"   stop-color="#ff9900" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#388bfd" stop-opacity="0.4"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="1" y1="0" x2="0" y2="0" gradientUnits="objectBoundingBox">
+            <stop offset="0%"   stop-color="#ff9900" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#388bfd" stop-opacity="0.4"/>
+          </linearGradient>
+          <!-- Worker node glow -->
+          <radialGradient id="wGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#388bfd" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#388bfd" stop-opacity="0"/>
+          </radialGradient>
+          <!-- Clip circles for worker pods -->
+          <clipPath id="w1c"><circle cx="250" cy="58" r="22"/></clipPath>
+          <clipPath id="w2c"><circle cx="363" cy="125" r="22"/></clipPath>
+          <clipPath id="w3c"><circle cx="363" cy="250" r="22"/></clipPath>
+          <clipPath id="w4c"><circle cx="250" cy="317" r="22"/></clipPath>
+          <clipPath id="w5c"><circle cx="137" cy="250" r="22"/></clipPath>
+          <clipPath id="w6c"><circle cx="137" cy="125" r="22"/></clipPath>
+        </defs>
+
+        <!-- ── Background glow ── -->
+        <circle cx="250" cy="187" r="130" fill="url(#cpGlow)"/>
+
+        <!-- ── Connection lines (dashed, animated) ── -->
+        <!-- Top worker -->
+        <line x1="250" y1="187" x2="250" y2="78" stroke="#ff9900" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="5 5" class="hero-conn"/>
+        <!-- Top-right worker -->
+        <line x1="250" y1="187" x2="345" y2="137" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="5 5" class="hero-conn"/>
+        <!-- Bottom-right worker -->
+        <line x1="250" y1="187" x2="345" y2="237" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="5 5" class="hero-conn-2"/>
+        <!-- Bottom worker -->
+        <line x1="250" y1="187" x2="250" y2="297" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="5 5" class="hero-conn"/>
+        <!-- Bottom-left worker -->
+        <line x1="250" y1="187" x2="155" y2="237" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="5 5" class="hero-conn-2"/>
+        <!-- Top-left worker -->
+        <line x1="250" y1="187" x2="155" y2="137" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="5 5" class="hero-conn"/>
+
+        <!-- ── Worker node 1 — top ── -->
+        <circle cx="250" cy="58" r="28" fill="url(#wGlow)"/>
+        <circle cx="250" cy="58" r="22" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.6"/>
+        <circle cx="243" cy="53" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="257" cy="53" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="250" cy="64" r="4" fill="#388bfd" fill-opacity="0.55"/>
+
+        <!-- ── Worker node 2 — top-right ── -->
+        <circle cx="363" cy="125" r="28" fill="url(#wGlow)"/>
+        <circle cx="363" cy="125" r="22" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.6"/>
+        <circle cx="356" cy="120" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="370" cy="120" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="363" cy="131" r="4" fill="#388bfd" fill-opacity="0.55"/>
+
+        <!-- ── Worker node 3 — bottom-right ── -->
+        <circle cx="363" cy="250" r="28" fill="url(#wGlow)"/>
+        <circle cx="363" cy="250" r="22" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.6"/>
+        <circle cx="356" cy="245" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="370" cy="245" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="363" cy="256" r="4" fill="#388bfd" fill-opacity="0.55"/>
+
+        <!-- ── Worker node 4 — bottom ── -->
+        <circle cx="250" cy="317" r="28" fill="url(#wGlow)"/>
+        <circle cx="250" cy="317" r="22" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.6"/>
+        <circle cx="243" cy="312" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="257" cy="312" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="250" cy="323" r="4" fill="#388bfd" fill-opacity="0.55"/>
+
+        <!-- ── Worker node 5 — bottom-left ── -->
+        <circle cx="137" cy="250" r="28" fill="url(#wGlow)"/>
+        <circle cx="137" cy="250" r="22" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.6"/>
+        <circle cx="130" cy="245" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="144" cy="245" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="137" cy="256" r="4" fill="#388bfd" fill-opacity="0.55"/>
+
+        <!-- ── Worker node 6 — top-left ── -->
+        <circle cx="137" cy="125" r="28" fill="url(#wGlow)"/>
+        <circle cx="137" cy="125" r="22" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-opacity="0.6"/>
+        <circle cx="130" cy="120" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="144" cy="120" r="4" fill="#388bfd" fill-opacity="0.55"/>
+        <circle cx="137" cy="131" r="4" fill="#388bfd" fill-opacity="0.55"/>
+
+        <!-- Worker labels -->
+        <text x="250" y="18" text-anchor="middle" fill="#8b949e" font-family="monospace" font-size="9" font-weight="600" letter-spacing="0.05em">WORKER</text>
+        <text x="404" y="106" text-anchor="start" fill="#8b949e" font-family="monospace" font-size="9" font-weight="600" letter-spacing="0.05em">WORKER</text>
+        <text x="404" y="267" text-anchor="start" fill="#8b949e" font-family="monospace" font-size="9" font-weight="600" letter-spacing="0.05em">WORKER</text>
+        <text x="250" y="360" text-anchor="middle" fill="#8b949e" font-family="monospace" font-size="9" font-weight="600" letter-spacing="0.05em">WORKER</text>
+        <text x="96"  y="267" text-anchor="end"   fill="#8b949e" font-family="monospace" font-size="9" font-weight="600" letter-spacing="0.05em">WORKER</text>
+        <text x="96"  y="106" text-anchor="end"   fill="#8b949e" font-family="monospace" font-size="9" font-weight="600" letter-spacing="0.05em">WORKER</text>
+
+        <!-- ── Control Plane ── -->
+        <!-- Outer glow ring -->
+        <circle cx="250" cy="187" r="56" stroke="#ff9900" stroke-width="1" stroke-opacity="0.15" fill="none"/>
+        <!-- Main control plane circle -->
+        <circle cx="250" cy="187" r="48" fill="#1a1f2e" stroke="#ff9900" stroke-width="2" stroke-opacity="0.8" class="hero-cp-glow"/>
+        <!-- Inner ring -->
+        <circle cx="250" cy="187" r="38" stroke="#ff9900" stroke-width="0.5" stroke-opacity="0.2" fill="none"/>
+
+        <!-- EKS text in center -->
+        <text x="250" y="181" text-anchor="middle" fill="#ff9900" font-family="-apple-system, monospace" font-size="14" font-weight="800" letter-spacing="2">EKS</text>
+        <text x="250" y="197" text-anchor="middle" fill="#8b949e" font-family="-apple-system, sans-serif" font-size="8.5" font-weight="600" letter-spacing="0.5">CONTROL PLANE</text>
+
+        <!-- Floating AWS region badge -->
+        <rect x="184" y="226" width="132" height="22" rx="11" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+        <circle cx="199" cy="237" r="4" fill="#3fb950"/>
+        <text x="207" y="241" fill="#8b949e" font-family="-apple-system, sans-serif" font-size="8.5" font-weight="500">Managed by AWS</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Stats bar ─────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">15</div>
+      <div class="stat-lbl">Examples</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-lbl">Categories</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10+</div>
+      <div class="stat-lbl">AWS Services</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">MIT-0</div>
+      <div class="stat-lbl">License</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Categories ───────────────────────────────────────── -->
+<section class="categories-section" id="categories">
+  <div class="section-header">
+    <span class="section-label">Browse</span>
+    <h2>Choose a Category</h2>
+    <p>Pick a starting point — from cluster creation to storage, networking, and beyond.</p>
+  </div>
+
+  <div class="cat-grid">
+
+    <!-- eksctl -->
+    <a href="eksctl/" class="cat-card cat-card--eksctl">
+      <div class="cat-card-icon">
+        <!-- server / cluster icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="4.5" rx="1.5"/>
+          <rect x="2" y="9.75" width="20" height="4.5" rx="1.5"/>
+          <rect x="2" y="16.5" width="20" height="4.5" rx="1.5"/>
+          <circle cx="18.5" cy="5.25" r="0.9" fill="currentColor" stroke="none"/>
+          <circle cx="18.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+          <circle cx="18.5" cy="18.75" r="0.9" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+
+      <span class="cat-card-badge">5 examples</span>
+      <h3>eksctl</h3>
+      <p class="cat-card-desc">
+        ClusterConfig YAML files for creating and managing EKS clusters. Covers Auto Mode, Fargate profiles, Ubuntu node groups, and reusing existing IAM roles.
+      </p>
+
+      <div class="cat-card-tags">
+        <span class="tech-tag">eksctl</span>
+        <span class="tech-tag">Auto Mode</span>
+        <span class="tech-tag">Fargate</span>
+        <span class="tech-tag">IAM</span>
+        <span class="tech-tag">Ubuntu</span>
+      </div>
+
+      <span class="cat-card-cta">
+        Explore examples
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- Kubernetes -->
+    <a href="kubernetes/" class="cat-card cat-card--kubernetes">
+      <div class="cat-card-icon">
+        <!-- Kubernetes wheel icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+          <!-- 6 spokes -->
+          <line x1="12" y1="9" x2="12" y2="3.5"/>
+          <line x1="12" y1="15" x2="12" y2="20.5"/>
+          <line x1="9.4" y1="10.5" x2="5.1" y2="7.5"/>
+          <line x1="14.6" y1="13.5" x2="18.9" y2="16.5"/>
+          <line x1="9.4" y1="13.5" x2="5.1" y2="16.5"/>
+          <line x1="14.6" y1="10.5" x2="18.9" y2="7.5"/>
+        </svg>
+      </div>
+
+      <span class="cat-card-badge">10 examples</span>
+      <h3>Kubernetes</h3>
+      <p class="cat-card-desc">
+        Manifests for real-world EKS workloads — storage snapshots, cross-account DR, Fargate logging, network policies, IRSA, topology hints, and more.
+      </p>
+
+      <div class="cat-card-tags">
+        <span class="tech-tag">EBS CSI</span>
+        <span class="tech-tag">NFS CSI</span>
+        <span class="tech-tag">IRSA</span>
+        <span class="tech-tag">OpenSearch</span>
+        <span class="tech-tag">NetworkPolicy</span>
+      </div>
+
+      <span class="cat-card-cta">
+        Explore examples
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- Helm -->
+    <a href="helm/" class="cat-card cat-card--helm">
+      <div class="cat-card-icon">
+        <!-- Ship's helm / wheel icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="3.5"/>
+          <!-- 8 spokes -->
+          <line x1="12" y1="8.5"  x2="12" y2="2"/>
+          <line x1="12" y1="15.5" x2="12" y2="22"/>
+          <line x1="8.5"  y1="12" x2="2"  y2="12"/>
+          <line x1="15.5" y1="12" x2="22" y2="12"/>
+          <line x1="9.97" y1="9.97" x2="5.64" y2="5.64"/>
+          <line x1="14.03" y1="14.03" x2="18.36" y2="18.36"/>
+          <line x1="9.97" y1="14.03" x2="5.64" y2="18.36"/>
+          <line x1="14.03" y1="9.97" x2="18.36" y2="5.64"/>
+        </svg>
+      </div>
+
+      <span class="cat-card-badge">Coming soon</span>
+      <h3>Helm</h3>
+      <p class="cat-card-desc">
+        Helm charts for deploying applications on Amazon EKS. This category is actively being expanded — contributions welcome.
+      </p>
+
+      <div class="cat-card-tags">
+        <span class="tech-tag">Helm 3</span>
+        <span class="tech-tag">OCI Charts</span>
+        <span class="tech-tag">values.yaml</span>
+      </div>
+
+      <span class="cat-card-cta">
+        Preview &amp; contribute
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+  </div>
+</section>
+
+<!-- ─── Quick Start ───────────────────────────────────────── -->
+<div class="quickstart-wrap">
+  <div class="quickstart-inner container">
+    <div class="qs-content">
+      <span class="section-label">Quick Start</span>
+      <h2>Run your first sample in minutes</h2>
+      <p>
+        Clone the repository, browse to an example, and apply the manifest to your EKS cluster.
+        Each example folder contains a <code>README.md</code> with prerequisites and step-by-step instructions.
+      </p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="traffic-lights">
+          <span class="tl tl-r"></span>
+          <span class="tl tl-y"></span>
+          <span class="tl tl-g"></span>
+        </div>
+        <span class="code-filename">terminal</span>
+      </div>
+      <div class="code-body">
+        <code><span class="c"># 1. Clone the repo</span>
+<span class="kw">git clone</span> <span class="st">https://github.com/aws-samples/aws-eks-samples.git</span>
+<span class="kw">cd</span> <span class="pa">aws-eks-samples</span>
+
+<span class="c"># 2. Browse an example</span>
+<span class="kw">ls</span> <span class="pa">examples/kubernetes/</span>
+
+<span class="c"># 3. Apply the manifest</span>
+<span class="kw">kubectl apply</span> <span class="pn">-f</span> <span class="pa">examples/kubernetes/network-policies/</span>
+
+<span class="c"># 4. Or create a cluster with eksctl</span>
+<span class="kw">eksctl create cluster</span> <span class="pn">-f</span> <span class="pa">examples/eksctl/how-to-eks-auto-mode/create-cluster.yaml</span></code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Disclaimer ───────────────────────────────────────── -->
+<div class="disclaimer-wrap">
+  <div class="disclaimer-box">
+    <span class="disclaimer-box-icon">⚠️</span>
+    <div>
+      <h4>For learning and testing only</h4>
+      <p>
+        These examples are not production-ready. Always follow
+        <a href="https://aws.github.io/aws-eks-best-practices/security/docs/" target="_blank" rel="noopener">Amazon EKS Security Best Practices</a>
+        before deploying to production.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ───────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand"><strong>Amazon EKS Samples</strong> &nbsp;·&nbsp; Licensed under MIT-0</span>
+    <ul class="footer-links">
+      <li><a href="https://github.com/aws-samples/aws-eks-samples" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://github.com/aws-samples/aws-eks-samples/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></li>
+      <li><a href="https://aws.github.io/aws-eks-best-practices/" target="_blank" rel="noopener">EKS Best Practices</a></li>
+      <li><a href="https://github.com/aws-samples/aws-eks-samples/issues" target="_blank" rel="noopener">Issues</a></li>
+    </ul>
+  </div>
+</footer>
+
+</body>
+</html>
