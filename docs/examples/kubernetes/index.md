@@ -1,16 +1,16 @@
 ---
-title: Kubernetes Examples
+title: Kubernetes Samples
 layout: default
 nav_order: 2
 parent: Examples
 has_children: true
 ---
 
-# Kubernetes Examples
+# Kubernetes Samples
 
 Kubernetes manifests for common EKS workloads, networking, and storage patterns.
 
-| Example | Description |
+| Sample | Description |
 |---|---|
 | [DR Multi-Account](how-to-dr-multi-account/) | Disaster recovery across AWS accounts |
 | [Troubleshoot Network Issues](how-to-tshoot-eks-intermittent-network-issues/) | Diagnose intermittent networking problems |

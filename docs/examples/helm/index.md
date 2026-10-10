@@ -1,12 +1,12 @@
 ---
-title: Helm Examples
+title: Helm Samples
 layout: default
 nav_order: 3
 parent: Examples
 has_children: true
 ---
 
-# Helm Examples
+# Helm Samples
 
 Helm chart examples for deploying applications on Amazon EKS.
 
