@@ -3,7 +3,10 @@ description: Example manifests for different workloads you can deploy in Amazon 
 baseurl: "/aws-eks-samples"
 url: "https://aws-samples.github.io"
 
-theme: just-the-docs
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+
+plugins:
+  - jekyll-remote-theme
 
 # Navigation
 nav_sort: case_insensitive
