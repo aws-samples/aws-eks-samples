@@ -18,15 +18,15 @@
   --orange-dim:      rgba(255, 153, 0, 0.1);
   --orange-glow:     rgba(255, 153, 0, 0.2);
 
-  --blue:            #388bfd;
-  --blue-dim:        rgba(56, 139, 253, 0.1);
-  --blue-border:     rgba(56, 139, 253, 0.35);
-  --blue-glow:       rgba(56, 139, 253, 0.15);
+  --blue:            #2dd4bf;
+  --blue-dim:        rgba(45, 212, 191, 0.1);
+  --blue-border:     rgba(45, 212, 191, 0.35);
+  --blue-glow:       rgba(45, 212, 191, 0.15);
 
-  --teal:            #2dd4bf;
-  --teal-dim:        rgba(45, 212, 191, 0.1);
-  --teal-border:     rgba(45, 212, 191, 0.35);
-  --teal-glow:       rgba(45, 212, 191, 0.15);
+  --teal:            #388bfd;
+  --teal-dim:        rgba(56, 139, 253, 0.1);
+  --teal-border:     rgba(56, 139, 253, 0.35);
+  --teal-glow:       rgba(56, 139, 253, 0.15);
 
   --purple:          #c084fc;
   --purple-dim:      rgba(192, 132, 252, 0.1);
