@@ -1,0 +1,38 @@
+title: Amazon EKS Samples
+description: Example manifests for different workloads you can deploy in Amazon EKS
+baseurl: "/aws-eks-samples"
+url: "https://aws-samples.github.io"
+
+theme: just-the-docs
+
+# Navigation
+nav_sort: case_insensitive
+search_enabled: true
+
+# Footer
+footer_content: "Copyright &copy; Amazon Web Services. Distributed under the MIT-0 License."
+
+# Color scheme (dark matches AWS console aesthetic)
+color_scheme: dark
+
+# Aux links in top-right navigation
+aux_links:
+  "View on GitHub":
+    - "https://github.com/aws-samples/aws-eks-samples"
+
+aux_links_new_tab: true
+
+# Callouts
+callouts:
+  warning:
+    title: Warning
+    color: yellow
+  note:
+    title: Note
+    color: blue
+
+# Exclude from processing
+exclude:
+  - "*.sh"
+  - "Gemfile*"
+  - "node_modules/"
