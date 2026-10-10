@@ -1,16 +1,16 @@
 ---
-title: eksctl Examples
+title: Eksctl Samples
 layout: default
 nav_order: 1
 parent: Examples
 has_children: true
 ---
 
-# eksctl Examples
+# Eksctl Samples
 
 Config files for creating and managing Amazon EKS clusters with `eksctl`.
 
-| Example | Description |
+| Sample | Description |
 |---|---|
 | [Get started](how-to-get-started/) | Basic cluster creation |
 | [EKS Auto Mode](how-to-eks-auto-mode/) | Cluster with Auto Mode enabled |
