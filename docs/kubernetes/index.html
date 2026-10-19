@@ -89,6 +89,8 @@
         <span class="cat-tag">NetworkPolicy</span>
         <span class="cat-tag">VolumeSnapshot</span>
         <span class="cat-tag">Topology Hints</span>
+        <span class="cat-tag">vLLM</span>
+        <span class="cat-tag">Graviton5</span>
       </div>
     </div>
 
@@ -110,7 +112,7 @@
 
 <!-- ─── Examples Grid ─────────────────────────────────── -->
 <section class="examples-section">
-  <div class="examples-section-title">10 Examples</div>
+  <div class="examples-section-title">11 Examples</div>
 
   <div class="examples-grid">
 
@@ -335,6 +337,30 @@
         <span class="svc-tag">NetworkPolicy</span>
         <span class="svc-tag">Amazon VPC CNI</span>
         <span class="svc-tag">Pod Security</span>
+      </div>
+      <span class="ex-card-link">
+        View sample
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="8" x2="13" y2="8"/><polyline points="8 3 13 8 8 13"/>
+        </svg>
+      </span>
+    </a>
+
+    <!-- 11: vLLM LLM Serving on Graviton5 -->
+    <a href="https://github.com/aws-samples/aws-eks-samples/tree/main/examples/kubernetes/how-to-vllm-serving-graviton-eks-auto-mode" target="_blank" rel="noopener" class="ex-card ex-card--kubernetes">
+      <div class="ex-card-top">
+        <h3>LLM Serving with vLLM on Graviton5</h3>
+        <span class="ex-card-num">11</span>
+      </div>
+      <p>
+        Serve an LLM with the <strong>vLLM</strong> Arm64 CPU Deep Learning Container on <strong>EKS Auto Mode</strong>, scheduled onto <strong>Graviton5</strong> (m9g) nodes by a custom Karpenter NodePool. Token-gated, ClusterIP-only, with an On-Demand vs Spot cost comparison.
+      </p>
+      <div class="ex-card-tags">
+        <span class="svc-tag">vLLM</span>
+        <span class="svc-tag">Graviton5</span>
+        <span class="svc-tag">EKS Auto Mode</span>
+        <span class="svc-tag">Karpenter</span>
+        <span class="svc-tag">LLM Inference</span>
       </div>
       <span class="ex-card-link">
         View sample
