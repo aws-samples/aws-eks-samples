@@ -1,0 +1,165 @@
+---
+# vLLM on Graviton (CPU) for Amazon EKS Auto Mode
+#
+# This manifest serves an LLM with the vLLM arm64 CPU Deep Learning Container and
+# schedules it onto the Graviton5 NodePool defined in nodepool-graviton.yaml:
+#   - arm64, instance families m9g/m9gd (Graviton5), NoSchedule taint key "graviton"
+#   - node label NodeGroupType=Graviton
+#
+# The vLLM server is UNAUTHENTICATED by default. This manifest keeps it
+# cluster-internal (ClusterIP only) and injects an API key via --api-key read from
+# a Secret, so every request must carry a bearer token. Do NOT switch the Service to
+# LoadBalancer/NodePort without keeping the API key (and ideally fronting it with a
+# proper authentication layer) in place.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vllm
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vllm-api-key
+  namespace: vllm
+type: Opaque
+stringData:
+  # CHANGE THIS before applying. Clients send:  Authorization: Bearer <this value>
+  api-key: "change-me-to-a-long-random-token"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-qwen
+  namespace: vllm
+  labels:
+    app: vllm-qwen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-qwen
+  template:
+    metadata:
+      labels:
+        app: vllm-qwen
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      # --- Schedule onto the Graviton5 (arm64) NodePool -------------------
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        NodeGroupType: Graviton
+        intent: vllm
+        # Capacity type: switch to "spot" to serve from Spot capacity and
+        # significantly lower cost for interruptible / demo workloads.
+        karpenter.sh/capacity-type: on-demand
+      # The Graviton NodePool taints its nodes with key "graviton":NoSchedule.
+      tolerations:
+        - key: graviton
+          operator: Exists
+          effect: NoSchedule
+      # -------------------------------------------------------------------
+      containers:
+        - name: vllm
+          image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          args:
+            - "--model"
+            - "Qwen/Qwen3.5-2B"
+            - "--dtype"
+            - "bfloat16"
+            - "--max-model-len"
+            - "4096"
+            - "--host"
+            - "0.0.0.0"
+            - "--port"
+            - "8000"
+            # Require a bearer token on every request (server is unauthenticated otherwise)
+            - "--api-key"
+            - "$(VLLM_API_KEY)"
+          env:
+            - name: VLLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: vllm-api-key
+                  key: api-key
+            # CPU KV-cache size in GiB. This is reserved IN ADDITION to the model
+            # weights + framework overhead, and must fit under the pod's memory
+            # limit. 8 GiB is ample for a small model at 4k context.
+            - name: VLLM_CPU_KVCACHE_SPACE
+              value: "8"
+            # Pin OpenMP threads to the allocated cores for better CPU throughput.
+            - name: VLLM_CPU_OMP_THREADS_BIND
+              value: "auto"
+          ports:
+            - name: http
+              containerPort: 8000
+          resources:
+            # These requests drive Karpenter to launch a right-sized Graviton5 node.
+            # Asking for ~15 vCPU / ~28 GiB lands roughly on an m9g.4xlarge
+            # (16 vCPU / 64 GiB). Tune to the model you actually serve.
+            requests:
+              cpu: "15"
+              memory: 28Gi
+            limits:
+              cpu: "16"
+              memory: 40Gi
+          volumeMounts:
+            # Equivalent of `docker run --shm-size=4g`
+            - name: dshm
+              mountPath: /dev/shm
+            # Writable cache for downloaded Hugging Face weights
+            - name: hf-cache
+              mountPath: /root/.cache/huggingface
+          # The model takes a while to download + load; give it a generous startup budget.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 120   # up to ~20 min to become healthy
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 4Gi
+        # Weights live in an emptyDir, so a pod restart re-downloads them. Swap this
+        # for a PersistentVolumeClaim if you want the weights to persist across restarts.
+        - name: hf-cache
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-qwen
+  namespace: vllm
+  labels:
+    app: vllm-qwen
+spec:
+  # ClusterIP keeps the (token-protected) endpoint inside the cluster.
+  type: ClusterIP
+  selector:
+    app: vllm-qwen
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

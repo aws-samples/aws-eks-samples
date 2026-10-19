@@ -1,0 +1,63 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: graviton5-vllm
+spec:
+  disruption:
+    budgets:
+    - nodes: 10%
+    consolidateAfter: 0s
+    consolidationPolicy: WhenEmptyOrUnderutilized
+  limits:
+    cpu: 1000
+  template:
+    metadata:
+      labels:
+        NodeGroupType: Graviton
+        provisioner: graviton
+        type: karpenter
+        intent: vllm
+    spec:
+      expireAfter: 336h
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: ebs-optimized
+      requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+        - spot
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - arm64
+      - key: eks.amazonaws.com/instance-category
+        operator: In
+        values:
+        - c
+        - m
+        - r
+      - key: eks.amazonaws.com/instance-family
+        operator: In
+        values:
+        # Graviton5 general-purpose families (M9g / M9gd are generally available).
+        - m9g
+        - m9gd
+        # Compute- and memory-optimized Graviton5 families are added here as they
+        # become generally available in your Region.
+        - c9g
+        - c9gd
+        - r9g
+        - r9gd
+        # The vLLM Arm64 DLC also runs on earlier Graviton generations. To run on, or
+        # compare against, Graviton3(E)/Graviton4, add families such as c7g, m7g, c8g
+        # or r8g here and lower the instance-generation bound below accordingly.
+      - key: eks.amazonaws.com/instance-generation
+        operator: Gt
+        values:
+        - "8"
+      taints:
+      - effect: NoSchedule
+        key: graviton
