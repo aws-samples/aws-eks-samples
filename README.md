@@ -3,7 +3,7 @@
 [![Checkov](https://github.com/aws-samples/aws-eks-samples/actions/workflows/checkov.yml/badge.svg?branch=main)](https://github.com/aws-samples/aws-eks-samples/actions/workflows/checkov.yml)
 [![CodeQL](https://github.com/aws-samples/aws-eks-samples/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/aws-samples/aws-eks-samples/actions/workflows/github-code-scanning/codeql)
 [![GitHub Pages](https://github.com/aws-samples/aws-eks-samples/actions/workflows/pages/pages-build-deployment/badge.svg?branch=main)](https://github.com/aws-samples/aws-eks-samples/actions/workflows/pages/pages-build-deployment)
-[![License: MIT-0](https://img.shields.io/github/license/aws-samples/aws-eks-samples)](LICENSE)
+[![License: MIT-0](https://img.shields.io/badge/license-MIT--0-blue)](LICENSE)
 
 Ready-to-use `eksctl` cluster configs, Kubernetes manifests, and Helm-based stacks for
 learning and experimenting with [Amazon EKS](https://aws.amazon.com/eks/). Each sample is
