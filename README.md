@@ -83,13 +83,21 @@ examples/
 ├── kubernetes/   # Kubernetes manifests
 └── helm/         # Helm-based stacks
 docs/             # Static GitHub Pages site (served as is, no Jekyll build)
+knowledge-center/ # Copy of the StatefulSet snapshot sample, kept for an AWS Knowledge Center article
 ```
+
+`knowledge-center/how-to-snapshot-restore-resize-sts` is an exact copy of
+[`examples/kubernetes/how-to-snapshot-restore-resize-sts`](examples/kubernetes/how-to-snapshot-restore-resize-sts/).
+It stays at this path because the AWS Knowledge Center article
+[EKS persistent storage snapshot](https://repost.aws/knowledge-center/eks-modify-persistent-storage-snapshot)
+links to it. Change both copies together.
 
 ## Continuous integration
 
 | Workflow | What it does |
 |---|---|
 | [Checkov](.github/workflows/checkov.yml) | Scans the manifests in `examples/kubernetes` with [Checkov](https://www.checkov.io/) and uploads the results to GitHub code scanning |
+| [Knowledge Center](.github/workflows/knowledgecenter.yml) | Runs the same Checkov scan on `knowledge-center/` |
 | CodeQL | GitHub default code scanning setup |
 | pages-build-deployment | Publishes `docs/` to GitHub Pages |
 

@@ -7,9 +7,9 @@
 * For OpenSearch in VPC, you need a form of VPN or Proxy. You can use an EC2 instance in the same VPC and subnet to execute the steps in this tutorial
 
 ```
-git clone git@github.com:aws-samples/aws-eks-se-samples.git
+git clone https://github.com/aws-samples/aws-eks-samples.git
 
-cd aws-eks-se-samples/examples/eksctl/how-to-eks-fargate
+cd aws-eks-samples/examples/eksctl/how-to-eks-fargate
 
 eksctl create cluster -f ./fargate-cluster.yaml 
 ```

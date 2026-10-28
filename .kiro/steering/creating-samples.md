@@ -99,6 +99,7 @@ Add a row to the category's table under `## Samples` in `README.md`, in the same
 
 - First Helm sample: in `docs/helm/index.html`, replace the `<div class="coming-soon-wrap">` block with a `<section class="examples-section">` that mirrors `docs/kubernetes/index.html` and uses `ex-card--helm`, and drop "coming soon" from its `<meta name="description">`. On the landing page Helm card, change the badge from `Coming soon` to `1 Sample`, the CTA text from `Preview &amp; contribute` to `Explore Samples`, and remove "actively being expanded" from the description.
 - Removing or renaming a sample: delete or update its card, fix the `href`, renumber the remaining `ex-card-num` values and comments so they stay sequential, redo step 2, and update its rows in `docs/examples/<category>/index.md` and `README.md`.
+- `examples/kubernetes/how-to-snapshot-restore-resize-sts` has an exact copy at `knowledge-center/how-to-snapshot-restore-resize-sts`, kept because an AWS Knowledge Center article links to that path. Apply any change to both copies. Don't move, rename, or delete the `knowledge-center/` copy, and don't count it as a sample.
 - New category: this needs a new category page, nav and footer links on every page, a landing card, and new color modifier classes in `style.css`. Confirm with the user before adding one.
 
 ## Verify
@@ -117,11 +118,13 @@ done
 echo "total samples: $total"
 grep -n 'examples-section-title' docs/*/index.html
 grep -n -A1 'hero-meta-value\|class="stat-num"\|cat-card-badge' docs/index.html | grep -v '^--$'
+diff -r knowledge-center/how-to-snapshot-restore-resize-sts examples/kubernetes/how-to-snapshot-restore-resize-sts && echo "knowledge-center copy in sync"
 ```
 
 All of these must agree:
 
 - For each category, `folders`, `cards`, `readme`, `examples-section-title`, and the landing `cat-card-badge` show the same number.
 - Both landing `Samples` values equal `<total>+`.
+- The `knowledge-center` diff prints nothing and reports the copy in sync.
 
 To preview locally, the user can run `python3 -m http.server 8000 --bind 127.0.0.1 --directory docs` and open http://127.0.0.1:8000. Keep the bind on loopback.

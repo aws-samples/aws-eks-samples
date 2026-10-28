@@ -7,7 +7,7 @@ A tutorial on how to create Ubuntu managed and self-managed node group in AWS EK
 
 * Install latest [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/installing.html).
 * Install latest [eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
-* An existing AWS EKS Cluster. Create an [AWS EKS Cluster](https://github.com/aws-samples/aws-eks-se-samples/tree/main/knowledge-center/how-to-get-started)
+* An existing AWS EKS Cluster. Create an [AWS EKS Cluster](../how-to-get-started/)
    
 
 ## Prepare your environment
