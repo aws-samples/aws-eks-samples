@@ -1,44 +1,17 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
+# Dependabot version updates.
+# Each entry needs a unique package-ecosystem + directory pair; a duplicate
+# makes the whole file invalid and Dependabot runs nothing.
+# https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
 version: 2
 updates:
-
-  # Maintain dependencies for GitHub Actions
+  # GitHub Actions used in .github/workflows (directory "/" means the default location)
   - package-ecosystem: "github-actions"
-  # Files stored in repository root
     directory: "/"
     schedule:
       interval: "weekly"
 
-  - package-ecosystem: "github-actions"
-    # Workflow files stored in the
-    # default location of `.github/workflows`
-    directory: "/"
-    schedule:
-      interval: "weekly"
-
-  # Maintain dependencies for npm
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-
-  # Maintain dependencies for docker
+  # Base image of the tcpdump troubleshooting sample
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/examples/kubernetes/how-to-tshoot-eks-intermittent-network-issues/manifests"
     schedule:
-      interval: "weekly"      
-
-  # Maintain dependencies for docker
-  - package-ecosystem: "docker"
-    directory: "/examples/kubernetes"
-    schedule:
-      interval: "weekly"        
-
-  - package-ecosystem: pip
-    directory: "/examples/helm"
-    schedule:
-      interval: weekly       
+      interval: "weekly"
