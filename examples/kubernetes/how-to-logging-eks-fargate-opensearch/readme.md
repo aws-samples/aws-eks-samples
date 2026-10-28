@@ -18,11 +18,11 @@ EKS Fargate Cluster ----> AWS Opensearch
 * For OpenSearch in VPC, you need a form of VPN or Proxy. You can use an EC2 instance in the same VPC and subnet to execute the steps in this tutorial
 
 ```
-git clone git@github.com:aws-samples/aws-eks-se-samples.git
+git clone https://github.com/aws-samples/aws-eks-samples.git
 
-cd aws-eks-se-samples
+cd aws-eks-samples
 
-eksctl create cluster -f examples/eksctl/how-toeks-fargate/fargate-cluster.yaml 
+eksctl create cluster -f examples/eksctl/how-to-eks-fargate/fargate-cluster.yaml
 ```
 
 The command above will create an EKS Cluster in a VPC. The VPC details is also used to provision the AWS OpenSearch with VPC Access.
@@ -61,8 +61,8 @@ echo ACCOUNT_ID: $ACCOUNT_ID
 3. Clone the repo
 
 ```
-git clone https://github.com/aws-samples/aws-eks-se-samples.git
-cd aws-eks-se-samples/examples/kubernetes/how-to-logging-eks-fargate-opensearch
+git clone https://github.com/aws-samples/aws-eks-samples.git
+cd aws-eks-samples/examples/kubernetes/how-to-logging-eks-fargate-opensearch
 ```
 
 

@@ -9,7 +9,7 @@ Source Account: EKS Cluster 1.21 (In-tree) ----> Destination Account: EKS Cluste
 
 ## Prerequisites
 
-1. Create an [AWS EKS Cluster](https://github.com/aws-samples/aws-eks-se-samples/tree/main/knowledge-center/how-to-get-started) in 2 different AWS accounts. For example below:
+1. Create an [AWS EKS Cluster](../../eksctl/how-to-get-started/) in 2 different AWS accounts. For example below:
 Account A - 1111111111111
 Account B - 2222222222222
 
@@ -18,8 +18,8 @@ Account B - 2222222222222
 3. Clone the repo
 
 ```
-git clone https://github.com/aws-samples/aws-eks-se-samples.git
-cd examples/kubernetes/how-to-dr-multi-account
+git clone https://github.com/aws-samples/aws-eks-samples.git
+cd aws-eks-samples/examples/kubernetes/how-to-dr-multi-account
 ```
 
 # Dealing with Encrypted Volumes 
