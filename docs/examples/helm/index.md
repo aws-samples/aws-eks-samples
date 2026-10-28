@@ -10,4 +10,7 @@ has_children: true
 
 Helm chart examples for deploying applications on Amazon EKS.
 
-Browse the [helm directory on GitHub](https://github.com/aws-samples/aws-eks-samples/tree/main/examples/helm) for available charts.
+| Sample | Description |
+|---|---|
+| [Karpenter Observability on EKS Auto Mode](how-to-eks-auto-mode-karpenter-observability/) | Prometheus and Grafana with a Karpenter Impact dashboard for EKS Auto Mode |
+

@@ -1,0 +1,27 @@
+# Grants the Prometheus server read access to the EKS control plane metrics API
+# for kube-scheduler (ksh) and kube-controller-manager (kcm).
+# https://docs.aws.amazon.com/eks/latest/userguide/view-raw-metrics.html
+#
+# Kept separate from the Helm-managed ClusterRole so that re-running setup.sh or
+# upgrading the chart does not drop or duplicate the rule.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-eks-control-plane-metrics
+rules:
+  - apiGroups: ["metrics.eks.amazonaws.com"]
+    resources: ["kcm/metrics", "ksh/metrics"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-eks-control-plane-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-eks-control-plane-metrics
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-server
+    namespace: monitoring

@@ -1,0 +1,191 @@
+# Values for the prometheus-community/prometheus chart.
+# Installs Prometheus server, node-exporter, and kube-state-metrics, configured to
+# surface Karpenter's impact on an EKS Auto Mode cluster.
+
+alertmanager:
+  persistentVolume:
+    enabled: false
+
+server:
+  # Fixed name so manifests/rbac-eks-control-plane-metrics.yaml can bind to the
+  # prometheus-server ServiceAccount.
+  fullnameOverride: prometheus-server
+  persistentVolume:
+    enabled: false
+
+prometheus-node-exporter:
+  extraArgs:
+    # ENA network interface statistics
+    - --collector.ethtool
+
+kube-state-metrics:
+  # Expose Karpenter-managed node labels on kube_node_labels for fleet panels.
+  metricLabelsAllowlist:
+    - nodes=[node.kubernetes.io/instance-type,kubernetes.io/arch,karpenter.sh/capacity-type,karpenter.sh/nodepool,karpenter.k8s.aws/instance-gpu-count,karpenter.k8s.aws/instance-neuron-count,karpenter.k8s.aws/instance-family]
+  rbac:
+    extraRules:
+      - apiGroups: ["karpenter.sh"]
+        resources: ["nodepools", "nodeclaims"]
+        verbs: ["list", "watch"]
+      - apiGroups: ["eks.amazonaws.com"]
+        resources: ["nodeclasses"]
+        verbs: ["list", "watch"]
+  # Build karpenter_* metrics from the Karpenter CRDs, because EKS Auto Mode runs
+  # Karpenter in the control plane and does not expose its native metrics.
+  customResourceState:
+    enabled: true
+    config:
+      spec:
+        resources:
+          - groupVersionKind:
+              group: karpenter.sh
+              version: v1
+              kind: NodePool
+            metricNamePrefix: karpenter_nodepool
+            labelsFromPath:
+              nodepool: [metadata, name]
+              nodeclass: [spec, template, spec, nodeClassRef, name]
+            metrics:
+              - name: info
+                help: "NodePool info"
+                each:
+                  type: Info
+                  info:
+                    labelsFromPath:
+                      disruption_consolidation_policy: [spec, disruption, consolidationPolicy]
+              - name: status_ready
+                help: "NodePool readiness (1=ready)"
+                each:
+                  type: Gauge
+                  gauge:
+                    nilIsZero: true
+                    path: [status, conditions]
+                    labelsFromPath:
+                      condition: [type]
+                    valueFrom: [status]
+                  filter:
+                    op: In
+                    path: [type]
+                    values: ["Ready"]
+                commonLabels:
+                  status_value: "True"
+              - name: node_count
+                help: "Number of nodes in the NodePool"
+                each:
+                  type: Gauge
+                  gauge:
+                    path: [status, nodes]
+                    nilIsZero: true
+              - name: resource_cpu_cores
+                help: "Total CPU cores in the NodePool"
+                each:
+                  type: Gauge
+                  gauge:
+                    path: [status, resources, cpu]
+                    nilIsZero: true
+              - name: resource_pods
+                help: "Total pod capacity in the NodePool"
+                each:
+                  type: Gauge
+                  gauge:
+                    path: [status, resources, pods]
+                    nilIsZero: true
+          - groupVersionKind:
+              group: karpenter.sh
+              version: v1
+              kind: NodeClaim
+            metricNamePrefix: karpenter_nodeclaim
+            labelsFromPath:
+              nodeclaim: [metadata, name]
+              nodepool: [metadata, labels, "karpenter.sh/nodepool"]
+              capacity_type: [metadata, labels, "karpenter.sh/capacity-type"]
+              instance_type: [metadata, labels, "node.kubernetes.io/instance-type"]
+              arch: [metadata, labels, "kubernetes.io/arch"]
+              zone: [metadata, labels, "topology.kubernetes.io/zone"]
+            metrics:
+              - name: info
+                help: "NodeClaim info"
+                each:
+                  type: Info
+                  info:
+                    labelsFromPath:
+                      node_name: [status, nodeName]
+                      provider_id: [status, providerID]
+                      image_id: [status, imageID]
+              - name: created
+                help: "NodeClaim creation timestamp"
+                each:
+                  type: Gauge
+                  gauge:
+                    path: [metadata, creationTimestamp]
+              - name: status_ready
+                help: "NodeClaim condition status"
+                each:
+                  type: Gauge
+                  gauge:
+                    nilIsZero: true
+                    path: [status, conditions]
+                    labelsFromPath:
+                      condition: [type]
+                    valueFrom: [status]
+                  filter:
+                    op: In
+                    path: [type]
+                    values: ["Ready", "Launched", "Registered", "Initialized", "Consolidatable"]
+          - groupVersionKind:
+              group: eks.amazonaws.com
+              version: v1
+              kind: NodeClass
+            metricNamePrefix: karpenter_nodeclass
+            labelsFromPath:
+              nodeclass: [metadata, name]
+            metrics:
+              - name: info
+                help: "NodeClass info"
+                each:
+                  type: Info
+                  info:
+                    labelsFromPath:
+                      role: [spec, role]
+              - name: status_ready
+                help: "NodeClass readiness"
+                each:
+                  type: Gauge
+                  gauge:
+                    nilIsZero: true
+                    path: [status, conditions]
+                    labelsFromPath:
+                      condition: [type]
+                    valueFrom: [status]
+                  filter:
+                    op: In
+                    path: [type]
+                    values: ["Ready"]
+
+# EKS control plane metrics (Kubernetes 1.28+), proxied by the API server:
+# https://docs.aws.amazon.com/eks/latest/userguide/view-raw-metrics.html
+#
+# Each job scrapes one static target, kubernetes.default.svc. Discovering every
+# API server endpoint instead returns the same scheduler and controller-manager
+# series once per endpoint, which doubles sum() panels on the dashboard.
+# TLS is verified against the in-cluster CA (no insecure_skip_verify).
+extraScrapeConfigs: |
+  - job_name: ksh-metrics
+    scheme: https
+    metrics_path: /apis/metrics.eks.amazonaws.com/v1/ksh/container/metrics
+    static_configs:
+      - targets: ["kubernetes.default.svc:443"]
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    authorization:
+      credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+  - job_name: kcm-metrics
+    scheme: https
+    metrics_path: /apis/metrics.eks.amazonaws.com/v1/kcm/container/metrics
+    static_configs:
+      - targets: ["kubernetes.default.svc:443"]
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    authorization:
+      credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
