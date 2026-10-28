@@ -1,12 +1,12 @@
 ---
 inclusion: auto
 name: creating-samples
-description: Use when creating, adding, renaming, or removing a sample under examples/ (eksctl, kubernetes, helm). Covers publishing the sample to the GitHub Pages site in docs/ and keeping the landing page sample counts accurate.
+description: Use when creating, adding, renaming, or removing a sample under examples/ (eksctl, kubernetes, helm). Covers publishing the sample to the GitHub Pages site in docs/, listing it in the root README.md, and keeping the landing page sample counts accurate.
 ---
 
 # Creating samples
 
-A sample is not done until it is on the GitHub Pages site. Every change that adds, renames, or removes a sample under `examples/` MUST update `docs/` in the same commit or PR.
+A sample is not done until it is on the GitHub Pages site and in the root `README.md`. Every change that adds, renames, or removes a sample under `examples/` MUST update `docs/` and `README.md` in the same commit or PR.
 
 ## How the site is built
 
@@ -87,10 +87,18 @@ Add a row to the table in `docs/examples/<category>/index.md`:
 | [Short Title](how-to-example/) | One-line description |
 ```
 
+### 4. Add the sample to the root README
+
+Add a row to the category's table under `## Samples` in `README.md`, in the same order as the cards on the category page. Link to the sample folder from the repo root:
+
+```markdown
+| [Short title](examples/kubernetes/how-to-example/) | One-line description |
+```
+
 ## Special cases
 
 - First Helm sample: in `docs/helm/index.html`, replace the `<div class="coming-soon-wrap">` block with a `<section class="examples-section">` that mirrors `docs/kubernetes/index.html` and uses `ex-card--helm`, and drop "coming soon" from its `<meta name="description">`. On the landing page Helm card, change the badge from `Coming soon` to `1 Sample`, the CTA text from `Preview &amp; contribute` to `Explore Samples`, and remove "actively being expanded" from the description.
-- Removing or renaming a sample: delete or update its card, fix the `href`, renumber the remaining `ex-card-num` values and comments so they stay sequential, and redo step 2.
+- Removing or renaming a sample: delete or update its card, fix the `href`, renumber the remaining `ex-card-num` values and comments so they stay sequential, redo step 2, and update its rows in `docs/examples/<category>/index.md` and `README.md`.
 - New category: this needs a new category page, nav and footer links on every page, a landing card, and new color modifier classes in `style.css`. Confirm with the user before adding one.
 
 ## Verify
@@ -102,7 +110,8 @@ total=0
 for c in eksctl kubernetes helm; do
   n=$(find "examples/$c" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
   cards=$(grep -c 'class="ex-card ex-card--' "docs/$c/index.html")
-  echo "$c: folders=$n cards=$cards"
+  readme=$(grep -c "^| \[.*\](examples/$c/" README.md)
+  echo "$c: folders=$n cards=$cards readme=$readme"
   total=$((total + n))
 done
 echo "total samples: $total"
@@ -112,7 +121,7 @@ grep -n -A1 'hero-meta-value\|class="stat-num"\|cat-card-badge' docs/index.html 
 
 All of these must agree:
 
-- For each category, `folders`, `cards`, `examples-section-title`, and the landing `cat-card-badge` show the same number.
+- For each category, `folders`, `cards`, `readme`, `examples-section-title`, and the landing `cat-card-badge` show the same number.
 - Both landing `Samples` values equal `<total>+`.
 
 To preview locally, the user can run `python3 -m http.server 8000 --bind 127.0.0.1 --directory docs` and open http://127.0.0.1:8000. Keep the bind on loopback.
