@@ -1,0 +1,142 @@
+# Namespace, S3 model volume, and a one-off Job that stages
+# Qwen/Qwen3-4B-Instruct-2507 (~7.6 GB of bf16 safetensors) in your S3 bucket.
+#
+# Every Ray worker then reads the weights from S3 through the same volume instead
+# of downloading them from Hugging Face on each scale-out.
+#
+# Replace <MODEL_BUCKET> and <AWS_REGION> before applying, for example:
+#   sed -e "s|<MODEL_BUCKET>|${MODEL_BUCKET}|g" -e "s|<AWS_REGION>|${AWS_REGION}|g" \
+#     model-download-job.yaml | kubectl apply -f -
+#
+# Result: s3://<MODEL_BUCKET>/Qwen3-4B-Instruct-2507/
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ray-vllm
+---
+# Mountpoint for Amazon S3 CSI driver volume. The driver's own IAM role (not the
+# pod's) needs access to the bucket; see the README prerequisites.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ray-vllm-model-pv
+spec:
+  capacity:
+    storage: 100Gi # Ignored by S3, but required by Kubernetes
+  accessModes:
+    - ReadWriteMany
+  # Deleting the PV/PVC never deletes the weights in S3.
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    namespace: ray-vllm
+    name: ray-vllm-model-pvc
+  mountOptions:
+    - allow-overwrite
+    - allow-other
+    - region <AWS_REGION>
+  csi:
+    driver: s3.csi.aws.com
+    volumeHandle: ray-vllm-model-volume # must be unique per PV in the cluster
+    volumeAttributes:
+      bucketName: <MODEL_BUCKET>
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ray-vllm-model-pvc
+  namespace: ray-vllm
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: ray-vllm-model-pv
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: download-qwen3-4b-instruct-2507
+  namespace: ray-vllm
+  labels:
+    app: model-downloader
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 3600
+  template:
+    metadata:
+      labels:
+        app: model-downloader
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: model-downloader
+        image: python:3.11-slim
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          set -euo pipefail
+          pip install --no-cache-dir -q huggingface_hub
+          python3 - <<'EOF'
+          import os, shutil
+          from huggingface_hub import snapshot_download
+
+          staging_dir = "/tmp/model-staging"
+          target_dir = "/models/Qwen3-4B-Instruct-2507"
+
+          print("Downloading Qwen/Qwen3-4B-Instruct-2507 ...", flush=True)
+          snapshot_download(repo_id="Qwen/Qwen3-4B-Instruct-2507", local_dir=staging_dir)
+
+          # Mountpoint for S3 supports sequential writes of new files, so copy file
+          # by file instead of letting the downloader write to the mount directly.
+          for root, dirs, files in os.walk(staging_dir):
+              dirs[:] = [d for d in dirs if not d.startswith(".")]
+              for name in files:
+                  if name.startswith("."):
+                      continue
+                  src = os.path.join(root, name)
+                  dst = os.path.join(target_dir, os.path.relpath(src, staging_dir))
+                  os.makedirs(os.path.dirname(dst), exist_ok=True)
+                  shutil.copyfile(src, dst)
+                  print(f"  copied {dst} ({os.path.getsize(dst):,} bytes)", flush=True)
+          print("All files copied to S3.", flush=True)
+          EOF
+        env:
+        - name: HF_HOME
+          value: /tmp/huggingface
+        # The model is public (ungated), so a Hugging Face token is optional. If
+        # the Secret exists it only raises Hugging Face rate limits.
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: token
+              optional: true
+        resources:
+          requests:
+            cpu: "1"
+            memory: 4Gi
+            ephemeral-storage: 20Gi
+          limits:
+            cpu: "2"
+            memory: 8Gi
+            ephemeral-storage: 20Gi
+        volumeMounts:
+        - name: model-storage
+          mountPath: /models
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: ray-vllm-model-pvc

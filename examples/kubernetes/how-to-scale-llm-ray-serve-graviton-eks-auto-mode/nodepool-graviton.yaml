@@ -1,0 +1,71 @@
+# Karpenter NodePool for the Ray head and Ray worker pods.
+#
+# Launches Arm64 Graviton5 nodes (c9g/m9g/r9g and their "d" local-NVMe variants)
+# from the EKS Auto Mode built-in "default" NodeClass. It accepts both On-Demand
+# and Spot capacity; the RayService picks one per pod with a nodeSelector on
+# karpenter.sh/capacity-type (head -> on-demand, workers -> spot).
+#
+# Nodes are labelled intent=ray-vllm and tainted graviton:NoSchedule, so only
+# pods that select and tolerate them land here.
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: graviton5-ray-vllm
+spec:
+  disruption:
+    budgets:
+    - nodes: 10%
+    consolidateAfter: 0s
+    # Ray pods carry karpenter.sh/do-not-disrupt, so consolidation never evicts
+    # a running head or worker; Ray's autoscaler owns scale-down.
+    consolidationPolicy: WhenEmptyOrUnderutilized
+  limits:
+    cpu: 200
+  template:
+    metadata:
+      labels:
+        NodeGroupType: Graviton
+        intent: ray-vllm
+    spec:
+      expireAfter: 336h
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: default
+      requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+        - spot
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - arm64
+      - key: eks.amazonaws.com/instance-category
+        operator: In
+        values:
+        - c
+        - m
+        - r
+      - key: eks.amazonaws.com/instance-family
+        operator: In
+        values:
+        # Graviton5 families. Offering several families and sizes gives Spot more
+        # pools to choose from, which lowers the interruption rate.
+        - c9g
+        - c9gd
+        - m9g
+        - m9gd
+        - r9g
+        - r9gd
+        # The vLLM Arm64 DLC also runs on earlier Graviton generations. Add
+        # families such as c8g, m8g, c7g or m7g here and lower the
+        # instance-generation bound below to use them.
+      - key: eks.amazonaws.com/instance-generation
+        operator: Gt
+        values:
+        - "8"
+      taints:
+      - effect: NoSchedule
+        key: graviton

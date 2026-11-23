@@ -1,0 +1,120 @@
+# Ray Serve application code for the qwen-vllm RayService (ray-service.yaml), mounted into the Ray
+# head and worker pods at /home/ray/python/vllm_serve.py (PYTHONPATH).
+# Targets the vllm-arm64:server-cpu-v1 DLC (floating tag; imports verified on vLLM 0.30.0 and 0.33.0) with Ray 2.60.0.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-serve-script
+  namespace: ray-vllm
+data:
+  vllm_serve.py: |
+    """Ray Serve wrapper around vLLM's own OpenAI-compatible server (vLLM 0.30.x-0.33.x, CPU).
+
+    Instead of re-implementing the OpenAI routes against vLLM internals (which change
+    between releases), each Serve replica builds the *same* FastAPI app that
+    `vllm serve` builds -- build_app() + init_app_state() -- and hands it to Ray Serve
+    as the replica's ASGI app (late-bound ingress, Ray >= 2.60). Every replica
+    therefore exposes the full vLLM API surface (/health, /v1/models,
+    /v1/chat/completions, /v1/completions, /metrics, ...) and honours the same flags,
+    including the bearer-token gate (VLLM_API_KEY).
+
+    Configuration comes from environment variables set in the RayService
+    runtime_env, so the model can be changed without editing this file:
+      MODEL_ID           local path or HF repo id passed as --model        (required)
+      SERVED_MODEL_NAME  name clients send in "model"                     (default MODEL_ID)
+      DTYPE              --dtype                                          (default bfloat16)
+      MAX_MODEL_LEN      --max-model-len                                  (default 4096)
+      MAX_NUM_SEQS       --max-num-seqs                                   (default 16)
+      VLLM_EXTRA_ARGS    any further `vllm serve` flags, shell-quoted     (optional)
+      VLLM_API_KEY       bearer token every request must carry            (required)
+    """
+
+    import os
+    import shlex
+    from types import SimpleNamespace
+
+    from ray import serve
+
+    from vllm.engine.arg_utils import AsyncEngineArgs
+    from vllm.entrypoints.launchers.api_server.app_state import init_app_state
+    from vllm.entrypoints.launchers.app import build_app
+    try:  # vLLM >= 0.33 (the floating server-cpu-v1 tag moved there)
+        from vllm.entrypoints.common.cli_args import (
+            make_arg_parser,
+            validate_parsed_serve_args,
+        )
+    except ImportError:  # vLLM 0.30.x
+        from vllm.entrypoints.launchers.cli_args import (
+            make_arg_parser,
+            validate_parsed_serve_args,
+        )
+    from vllm.logger import init_logger
+    from vllm.usage.usage_lib import UsageContext
+    from vllm.utils.argparse_utils import FlexibleArgumentParser
+    from vllm.v1.engine.async_llm import AsyncLLM
+
+    logger = init_logger("vllm_serve")
+
+
+    def _vllm_args():
+        """Build the `vllm serve` argument namespace from environment variables."""
+        model = os.environ["MODEL_ID"]
+        argv = [
+            "--model", model,
+            "--served-model-name", os.environ.get("SERVED_MODEL_NAME", model),
+            "--dtype", os.environ.get("DTYPE", "bfloat16"),
+            "--max-model-len", os.environ.get("MAX_MODEL_LEN", "4096"),
+            "--max-num-seqs", os.environ.get("MAX_NUM_SEQS", "16"),
+        ]
+        argv += shlex.split(os.environ.get("VLLM_EXTRA_ARGS", ""))
+        parser = make_arg_parser(FlexibleArgumentParser(prog="vllm-ray-serve"))
+        args = parser.parse_args(argv)
+        validate_parsed_serve_args(args)
+        return args
+
+
+    @serve.deployment(health_check_period_s=10, health_check_timeout_s=30)
+    @serve.ingress()  # late-bound: the ASGI app comes from __serve_build_asgi_app__
+    class VLLMDeployment:
+        async def __init__(self):
+            # Fail closed: never start a replica that would serve without a token.
+            if not os.environ.get("VLLM_API_KEY"):
+                raise RuntimeError("VLLM_API_KEY is not set; refusing to serve unauthenticated")
+
+            self.args = _vllm_args()
+            logger.info("Starting vLLM engine for %s", self.args.model)
+            engine_args = AsyncEngineArgs.from_cli_args(self.args)
+            usage_context = UsageContext.OPENAI_API_SERVER
+            vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+            self.engine = AsyncLLM.from_vllm_config(
+                vllm_config=vllm_config,
+                usage_context=usage_context,
+                enable_log_requests=engine_args.enable_log_requests,
+                disable_log_stats=engine_args.disable_log_stats,
+            )
+
+        async def __serve_build_asgi_app__(self):
+            # Called by Ray Serve after __init__; Serve also runs this app's
+            # lifespan, so vLLM's periodic stats logging works as under `vllm serve`.
+            supported_tasks = await self.engine.get_supported_tasks()
+            vllm_app = build_app(self.args, supported_tasks, self.engine.model_config)
+            await init_app_state(self.engine, vllm_app.state, self.args, supported_tasks)
+            # vLLM's engine-error handler sets state.server.should_exit to stop its
+            # uvicorn server. There is no uvicorn server under Ray Serve, so give it a
+            # stand-in: the client gets a clean 500, and check_health() below lets
+            # Serve replace the replica.
+            vllm_app.state.server = SimpleNamespace(should_exit=False)
+            logger.info("vLLM replica ready (tasks: %s)", supported_tasks)
+            return vllm_app
+
+        async def check_health(self):
+            # Called by Ray Serve every health_check_period_s; raising marks the
+            # replica unhealthy and Serve replaces it.
+            await self.engine.check_health()
+
+        def __del__(self):
+            if getattr(self, "engine", None):
+                self.engine.shutdown()
+
+
+    deployment = VLLMDeployment.bind()

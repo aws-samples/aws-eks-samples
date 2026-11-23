@@ -46,6 +46,7 @@ Manifests for EKS workloads across storage, networking, security, observability,
 | [Troubleshoot intermittent network issues](examples/kubernetes/how-to-tshoot-eks-intermittent-network-issues/) | `tcpdump` DaemonSet that streams node packet captures to Amazon S3 |
 | [Network policies](examples/kubernetes/network-policies/) | Default-deny and allow-all `NetworkPolicy` building blocks for the Amazon VPC CNI |
 | [vLLM on Graviton5](examples/kubernetes/how-to-vllm-serving-graviton-eks-auto-mode/) | Serve an LLM on Arm64 CPUs with EKS Auto Mode and a Karpenter `NodePool` |
+| [Scaling LLMs with Ray Serve on Graviton5](examples/kubernetes/how-to-scale-llm-ray-serve-graviton-eks-auto-mode/) | Autoscale vLLM replicas with Ray Serve and KubeRay, head On-Demand and workers on Spot |
 
 ### Helm
 
