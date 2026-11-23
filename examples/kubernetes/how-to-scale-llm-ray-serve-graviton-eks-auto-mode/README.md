@@ -162,7 +162,7 @@ step with each vLLM release.
     kubectl apply -f ray-service.yaml
     ```
 
-5. Wait until the service reports `Running`. From a cold start this takes about 6 to 8
+5. Wait until the service reports `Running`. From a cold start this takes about 5 to 8
    minutes:
 
     ```sh
@@ -258,6 +258,17 @@ minutes). Requests above the replicas' capacity queue in Ray Serve until then, u
 `max_ongoing_requests` (32) per replica. When the load stops, Serve removes the extra
 replica after `downscale_delay_s` (10 minutes). The Ray autoscaler then removes the idle
 worker after `idleTimeoutSeconds` (5 minutes), and EKS Auto Mode removes the empty node.
+
+Timeline measured with the load command above:
+
+| Time | Event |
+| --- | --- |
+| 0:00 | Load starts (24 concurrent requests) |
+| ~1:00 | Serve status `UPSCALING`; Ray adds a worker pod; Karpenter launches a second Spot node |
+| ~6:00 | Second replica `RUNNING` (Serve status `UPSCALE_COMPLETED`) |
+| ~9:20 | Load finishes; all 200 requests return `200` |
+| by ~19:30 | Serve removes the extra replica (`DOWNSCALE_COMPLETED`) |
+| by ~27:00 | Ray removes the idle worker pod and EKS Auto Mode removes its node |
 
 ## Comparing On-Demand and Spot cost
 

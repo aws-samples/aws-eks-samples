@@ -34,6 +34,9 @@ spec:
   mountOptions:
     - allow-overwrite
     - allow-other
+    # Present the files as owned by uid/gid 1000, the user the download Job runs as.
+    - uid=1000
+    - gid=1000
     - region <AWS_REGION>
   csi:
     driver: s3.csi.aws.com
@@ -73,6 +76,12 @@ spec:
       restartPolicy: Never
       automountServiceAccountToken: false
       securityContext:
+        # Mountpoint for S3 presents the bucket's files as owned by uid 1000 (see
+        # the PV mount options), so the Job runs as that user and can write
+        # without extra capabilities.
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -88,7 +97,7 @@ spec:
         args:
         - |
           set -euo pipefail
-          pip install --no-cache-dir -q huggingface_hub
+          pip install --no-cache-dir -q --user huggingface_hub
           python3 - <<'EOF'
           import os, shutil
           from huggingface_hub import snapshot_download
@@ -114,6 +123,9 @@ spec:
           print("All files copied to S3.", flush=True)
           EOF
         env:
+        # uid 1000 has no home directory in the image; pip --user installs here.
+        - name: HOME
+          value: /tmp
         - name: HF_HOME
           value: /tmp/huggingface
         # The model is public (ungated), so a Hugging Face token is optional. If
