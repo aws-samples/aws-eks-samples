@@ -1,18 +1,24 @@
 #!/bin/bash
 #
-# Simple multi-turn chat client for the vLLM OpenAI-compatible API.
+# Simple multi-turn chat client for the OpenAI-compatible API served by Ray Serve.
 #
-# First port-forward the Ray Serve Service to your laptop:
+# First port-forward the Serve Service to your laptop:
 #   kubectl -n ray-vllm port-forward svc/qwen-vllm-serve-svc 8000:8000
-# then, in another terminal, export the API key and run this script:
-#   export TOKEN=$(kubectl -n ray-vllm get secret ray-vllm-api-key -o jsonpath='{.data.api-key}' | base64 -d)
-#   ./multi-turn-chat.sh
+# then, in another terminal, pass the API key as the first argument:
+#   ./multi-turn-chat.sh "$(kubectl -n ray-vllm get secret ray-vllm-api-key -o jsonpath='{.data.api-key}' | base64 -d)"
 #
 # Requires: curl, jq
 
 API_URL="http://localhost:8000/v1/chat/completions"
-TOKEN="${TOKEN:?export TOKEN with the api-key from the ray-vllm-api-key Secret}"
-MODEL="${MODEL:-Qwen/Qwen3-4B-Instruct-2507}"
+MODEL="Qwen/Qwen3-4B-Instruct-2507"
+
+# API key: first argument, else an exported TOKEN variable.
+TOKEN="${1:-${TOKEN:-}}"
+if [[ -z "$TOKEN" ]]; then
+  echo "Usage: $0 <api-token>   (or export TOKEN=<api-token>)" >&2
+  echo "Get it with: kubectl -n ray-vllm get secret ray-vllm-api-key -o jsonpath='{.data.api-key}' | base64 -d" >&2
+  exit 1
+fi
 
 # Colors
 BOLD="\033[1m"
@@ -24,9 +30,9 @@ RESET="\033[0m"
 MESSAGES='[]'
 
 clear
-echo -e "${BOLD}╔══════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}║      Chat with ${CYAN}${MODEL}${RESET}${BOLD}       ║${RESET}"
-echo -e "${BOLD}╚══════════════════════════════════════╝${RESET}"
+echo -e "${BOLD}╔════════════════════════════════════════════════════╗${RESET}"
+echo -e "${BOLD}║      Chat with ${CYAN}${MODEL}${RESET}${BOLD}         ║${RESET}"
+echo -e "${BOLD}╚════════════════════════════════════════════════════╝${RESET}"
 echo -e "${DIM}  Type your message and press Enter. Leave blank to exit.${RESET}"
 echo ""
 

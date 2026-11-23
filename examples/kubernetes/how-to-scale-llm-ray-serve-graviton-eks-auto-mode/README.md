@@ -33,7 +33,7 @@ on Spot.
 | `model-download-job.yaml` | `ray-vllm` namespace, a Mountpoint for Amazon S3 `PersistentVolume`/`PersistentVolumeClaim` on your bucket, and a one-off `Job` that copies the model from Hugging Face into the bucket. |
 | `vllm-serve-script.yaml` | `ConfigMap` with `vllm_serve.py`, the Ray Serve application. |
 | `ray-service.yaml` | `RayService` `qwen-vllm`: Ray head, Graviton worker group, Serve config, and autoscaling settings. |
-| `multi-turn-chat.sh` | Minimal multi-turn chat client for the OpenAI-compatible API. |
+| `multi-turn-chat.sh` | Minimal multi-turn chat client for the OpenAI-compatible API. Takes the API key as its first argument. |
 
 The Ray cluster has two kinds of pods:
 
@@ -204,11 +204,15 @@ step with each vLLM release.
       }' | jq -r '.choices[0].message.content'
     ```
 
-8. (Optional) Chat interactively. The script reads `TOKEN` from the environment:
+8. (Optional) Chat interactively. Pass the API key as the first argument, or leave it
+   out to use the `TOKEN` variable exported in the previous step. The script keeps the
+   conversation history, so the model remembers earlier turns:
 
     ```sh
-    ./multi-turn-chat.sh
+    ./multi-turn-chat.sh "$TOKEN"
     ```
+
+    ![Multi-turn chat with Qwen3-4B](images/multi-turn-chat.png)
 
 9. (Optional) Open the Ray dashboard to see Serve status, replicas, logs, and autoscaler
    activity:
