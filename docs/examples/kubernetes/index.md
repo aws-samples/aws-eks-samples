@@ -23,3 +23,4 @@ Kubernetes manifests for common EKS workloads, networking, and storage patterns.
 | [Proxy Protocol CLB](how-to-enable-proxy-procotcol-clb/) | Enable Proxy Protocol on Classic Load Balancer |
 | [Python SDK in Containers](how-to-python-sdk-containers/) | Use the AWS SDK for Python inside pods |
 | [vLLM LLM Serving on Graviton5](how-to-vllm-serving-graviton-eks-auto-mode/) | Serve an LLM on Graviton5 CPUs with vLLM on EKS Auto Mode |
+| [Scaling LLMs with Ray Serve on Graviton5](how-to-scale-llm-ray-serve-graviton-eks-auto-mode/) | Autoscale vLLM replicas with Ray Serve on Graviton5 On-Demand and Spot nodes |

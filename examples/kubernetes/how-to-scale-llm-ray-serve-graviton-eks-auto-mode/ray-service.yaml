@@ -1,0 +1,375 @@
+# Qwen/Qwen3-4B-Instruct-2507 on Ray Serve + vLLM, CPU-only on Graviton5 (EKS Auto Mode).
+#
+# Runs the vLLM Arm64 CPU Deep Learning Container (bf16, 4k context, 8 GiB CPU KV
+# cache) behind Ray Serve, so replicas autoscale on load:
+#   Serve autoscaler (ongoing requests) -> Ray autoscaler adds a worker pod
+#   -> EKS Auto Mode (Karpenter) launches another Graviton node.
+#
+# Prerequisites (namespace "ray-vllm"), see README.md:
+#   1. KubeRay operator.
+#   2. nodepool-graviton.yaml applied.
+#   3. model-download-job.yaml applied and the Job completed (weights in S3).
+#   4. vllm-serve-script.yaml applied (Serve app code).
+#   5. API-key Secret. It is not stored in any file; create it once:
+#        kubectl -n ray-vllm create secret generic ray-vllm-api-key \
+#          --from-literal=api-key="$(openssl rand -hex 32)"
+#      Worker pods do not start without it (fail closed). Clients send
+#      "Authorization: Bearer <api-key>".
+#
+# Exposure: KubeRay creates ClusterIP services only (qwen-vllm-head-svc,
+# qwen-vllm-serve-svc). Do NOT change them to LoadBalancer/NodePort: the Ray
+# dashboard (8265) has no authentication and accepts job submission (arbitrary
+# code execution). Reach them with port-forward, which binds to localhost:
+#   kubectl -n ray-vllm port-forward svc/qwen-vllm-serve-svc 8000:8000   # OpenAI API
+#   kubectl -n ray-vllm port-forward svc/qwen-vllm-head-svc 8265:8265    # Ray dashboard
+apiVersion: ray.io/v1
+kind: RayService
+metadata:
+  name: qwen-vllm
+  namespace: ray-vllm
+spec:
+  serviceUnhealthySecondThreshold: 1800
+  deploymentUnhealthySecondThreshold: 1800
+  serveConfigV2: |
+    applications:
+      - name: qwen
+        import_path: "vllm_serve:deployment"
+        route_prefix: "/"
+        runtime_env:
+          env_vars:
+            # Weights live in S3 (model-download-job.yaml). The worker's
+            # stage-model init container copies them to node-local disk; vLLM
+            # loads from there. Loading straight off the Mountpoint-for-S3 (FUSE)
+            # mount was unusable: vLLM's mmap/prefetch access pattern got
+            # ~3 MiB/s (>10 min, still at shard 0/3), while a plain sequential
+            # copy reads at ~600 MiB/s.
+            MODEL_ID: "/local-models/Qwen3-4B-Instruct-2507"
+            # Name clients put in "model".
+            SERVED_MODEL_NAME: "Qwen/Qwen3-4B-Instruct-2507"
+            DTYPE: "bfloat16"
+            MAX_MODEL_LEN: "4096"
+            MAX_NUM_SEQS: "16"
+            # CPU backend settings (the DLC entrypoint normally sets these; Ray
+            # bypasses that entrypoint). KV cache is reserved on top of the
+            # ~7.5 GiB of weights and must fit under the worker memory limit.
+            VLLM_CPU_KVCACHE_SPACE: "8"
+            VLLM_CPU_OMP_THREADS_BIND: "auto"
+            LD_PRELOAD: "/usr/lib64/libtcmalloc_minimal.so.4"
+        deployments:
+          - name: VLLMDeployment
+            max_ongoing_requests: 32
+            graceful_shutdown_timeout_s: 30
+            autoscaling_config:
+              min_replicas: 1
+              # Keep <= workerGroupSpecs[0].maxReplicas (one replica per worker).
+              max_replicas: 2
+              target_ongoing_requests: 8
+              upscale_delay_s: 30
+              downscale_delay_s: 600
+            ray_actor_options:
+              # One replica fills one worker (15 Ray CPUs): 14 for vLLM, 1 spare
+              # for Serve's proxy / housekeeping.
+              num_cpus: 14
+  rayClusterConfig:
+    rayVersion: '2.60.0'
+    enableInTreeAutoscaling: true
+    autoscalerOptions:
+      # The vLLM CPU image has no Ray of its own (it is added via init
+      # containers), so the autoscaler sidecar needs a real Ray image. Multi-arch.
+      image: rayproject/ray:2.60.0
+      idleTimeoutSeconds: 300
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+    headGroupSpec:
+      rayStartParams: {}
+      template:
+        metadata:
+          labels:
+            app: qwen-vllm-ray
+          annotations:
+            # Use our command verbatim instead of appending KubeRay's ray start.
+            ray.io/overwrite-container-cmd: "true"
+            # The NodePool consolidates aggressively (WhenEmptyOrUnderutilized,
+            # consolidateAfter 0s) and evicted the head mid-startup, which takes
+            # the whole Ray cluster down. Ray's autoscaler owns scale-down.
+            karpenter.sh/do-not-disrupt: "true"
+        spec:
+          # The vLLM CPU DLC ships no Ray. Copy its venv to an emptyDir, add Ray
+          # there, and mount it back over /opt/venv (details in workerGroupSpecs).
+          initContainers:
+          - name: stage-venv
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            command: ["/bin/bash", "-c", "cp -a /opt/venv/. /ray-venv/"]
+            volumeMounts:
+            - name: ray-venv
+              mountPath: /ray-venv
+            resources:
+              requests: {cpu: "1", memory: 1Gi}
+              limits: {cpu: "2", memory: 2Gi}
+          - name: install-ray
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            command: ["/bin/bash", "-c", "pip install -q --no-cache-dir 'ray[serve]==2.60.0' && ray --version"]
+            volumeMounts:
+            - name: ray-venv
+              mountPath: /opt/venv
+            resources:
+              requests: {cpu: "1", memory: 1Gi}
+              limits: {cpu: "2", memory: 2Gi}
+          containers:
+          - name: ray-head
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            imagePullPolicy: IfNotPresent
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              ulimit -n 65536
+              echo "Starting Ray head node..."
+              # num-cpus=0: no Serve replicas are scheduled on the head.
+              ray start --head --dashboard-host=0.0.0.0 --dashboard-port=8265 \
+                --dashboard-agent-listen-port=52365 --num-cpus=0 \
+                --metrics-export-port=8080 --object-store-memory=1000000000 \
+                --no-monitor --disable-usage-stats --block
+            lifecycle:
+              preStop:
+                exec:
+                  command: ["/bin/sh", "-c", "ray stop"]
+            ports:
+            - containerPort: 6379
+              name: gcs
+            - containerPort: 8265
+              name: dashboard
+            - containerPort: 10001
+              name: client
+            - containerPort: 8000
+              name: serve
+            - containerPort: 52365
+              name: dashboard-agent
+            - containerPort: 8080
+              name: metrics
+            volumeMounts:
+            - name: ray-venv
+              mountPath: /opt/venv
+            - mountPath: /tmp/ray
+              name: ray-logs
+            - name: vllm-script
+              mountPath: /home/ray/python/vllm_serve.py
+              subPath: vllm_serve.py
+            resources:
+              limits:
+                cpu: "2"
+                memory: "8Gi"
+              requests:
+                cpu: "2"
+                memory: "8Gi"
+            env:
+            - name: PYTHONPATH
+              value: "/home/ray/python"
+            livenessProbe:
+              exec:
+                command:
+                - bash
+                - -c
+                - curl -sf http://localhost:52365/api/local_raylet_healthz | grep -q success && curl -sf http://localhost:8265/api/gcs_healthz | grep -q success
+              initialDelaySeconds: 30
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 120
+            readinessProbe:
+              exec:
+                command:
+                - bash
+                - -c
+                - curl -sf http://localhost:52365/api/local_raylet_healthz | grep -q success && curl -sf http://localhost:8265/api/gcs_healthz | grep -q success
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 120
+          # Graviton5 NodePool from nodepool-graviton.yaml.
+          # The head holds the GCS/Serve controller: keep it on on-demand.
+          nodeSelector:
+            kubernetes.io/arch: arm64
+            NodeGroupType: Graviton
+            intent: ray-vllm
+            karpenter.sh/capacity-type: on-demand
+          tolerations:
+          - key: graviton
+            operator: Exists
+            effect: NoSchedule
+          volumes:
+          - name: ray-venv
+            emptyDir:
+              sizeLimit: 6Gi
+          - name: ray-logs
+            emptyDir: {}
+          - name: vllm-script
+            configMap:
+              name: vllm-serve-script
+    workerGroupSpecs:
+    - groupName: graviton-cpu
+      replicas: 1
+      minReplicas: 1
+      # One vLLM replica per worker; match Serve max_replicas above.
+      maxReplicas: 2
+      rayStartParams: {}
+      template:
+        metadata:
+          labels:
+            app: qwen-vllm-ray
+          annotations:
+            ray.io/overwrite-container-cmd: "true"
+            karpenter.sh/do-not-disrupt: "true"
+        spec:
+          # The vLLM CPU DLC ships no Ray, and KubeRay injects a "wait-gcs-ready"
+          # init container that runs `ray health-check` using this pod's image,
+          # env and volumeMounts. So Ray must exist before any container starts:
+          # copy the image's venv to an emptyDir, pip-install Ray into it, and
+          # mount it over /opt/venv in the Ray container (KubeRay's init
+          # container inherits that mount). Production: bake Ray into an image.
+          initContainers:
+          - name: stage-venv
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            command: ["/bin/bash", "-c", "cp -a /opt/venv/. /ray-venv/"]
+            volumeMounts:
+            - name: ray-venv
+              mountPath: /ray-venv
+            resources:
+              requests: {cpu: "1", memory: 1Gi}
+              limits: {cpu: "2", memory: 2Gi}
+          - name: install-ray
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            command: ["/bin/bash", "-c", "pip install -q --no-cache-dir 'ray[serve]==2.60.0' && ray --version"]
+            volumeMounts:
+            - name: ray-venv
+              mountPath: /opt/venv
+            resources:
+              requests: {cpu: "1", memory: 1Gi}
+              limits: {cpu: "2", memory: 2Gi}
+          # Copy the weights S3 -> node-local disk with one sequential read per
+          # file (~600 MiB/s through Mountpoint, ~15 s for 7.5 GiB).
+          - name: stage-model
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              set -euo pipefail
+              SECONDS=0
+              cp -r /models/Qwen3-4B-Instruct-2507 /local-models/
+              echo "Staged $(du -sh /local-models/Qwen3-4B-Instruct-2507 | cut -f1) in ${SECONDS}s"
+            volumeMounts:
+            - name: persistent-storage
+              mountPath: /models
+              readOnly: true
+            - name: model-cache
+              mountPath: /local-models
+            resources:
+              requests: {cpu: "1", memory: 1Gi}
+              limits: {cpu: "2", memory: 2Gi}
+          containers:
+          - name: ray-worker
+            image: public.ecr.aws/deep-learning-containers/vllm-arm64:server-cpu-v1
+            imagePullPolicy: IfNotPresent
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              ulimit -n 65536
+              echo "Starting Ray worker node..."
+              # RAY_ADDRESS (head-svc:6379) is injected by KubeRay.
+              ray start --address=$RAY_ADDRESS --num-cpus=15 \
+                --object-store-memory=2147483648 --metrics-export-port=8080 \
+                --disable-usage-stats --block
+            lifecycle:
+              preStop:
+                exec:
+                  command: ["/bin/sh", "-c", "ray stop"]
+            ports:
+            - containerPort: 8080
+              name: metrics
+            volumeMounts:
+            - name: ray-venv
+              mountPath: /opt/venv
+            - mountPath: /tmp/ray
+              name: ray-logs
+            - name: vllm-script
+              mountPath: /home/ray/python/vllm_serve.py
+              subPath: vllm_serve.py
+            - name: model-cache
+              mountPath: /local-models
+              readOnly: true
+            # Equivalent of `docker run --shm-size`: Ray object store + vLLM shm.
+            - name: dshm
+              mountPath: /dev/shm
+            # Fits a 16 vCPU Graviton5 node (for example c9gd.4xlarge or
+            # m9g.4xlarge). Weights ~7.5 GiB + KV 8 GiB + vLLM/Ray overhead.
+            resources:
+              requests:
+                cpu: "15"
+                memory: 28Gi
+              limits:
+                cpu: "16"
+                memory: 40Gi
+            env:
+            - name: PYTHONPATH
+              value: "/home/ray/python"
+            # Bearer token enforced by vLLM on every request except /health.
+            - name: VLLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ray-vllm-api-key
+                  key: api-key
+            livenessProbe:
+              exec:
+                command:
+                - bash
+                - -c
+                - curl -sf http://localhost:52365/api/local_raylet_healthz | grep -q success
+              initialDelaySeconds: 30
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 120
+            readinessProbe:
+              exec:
+                command:
+                - bash
+                - -c
+                - curl -sf http://localhost:52365/api/local_raylet_healthz | grep -q success
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              timeoutSeconds: 3
+              failureThreshold: 120
+          nodeSelector:
+            kubernetes.io/arch: arm64
+            NodeGroupType: Graviton
+            intent: ray-vllm
+            # Workers are stateless replicas, so they run on Spot. If a node is
+            # reclaimed, Ray Serve reschedules the replica on a new worker.
+            karpenter.sh/capacity-type: spot
+            # karpenter.sh/capacity-type: on-demand
+          tolerations:
+          - key: graviton
+            operator: Exists
+            effect: NoSchedule
+          volumes:
+          - name: ray-venv
+            emptyDir:
+              sizeLimit: 6Gi
+          - name: ray-logs
+            emptyDir: {}
+          - name: vllm-script
+            configMap:
+              name: vllm-serve-script
+          - name: persistent-storage
+            persistentVolumeClaim:
+              claimName: ray-vllm-model-pvc
+              readOnly: true
+          - name: model-cache
+            emptyDir:
+              sizeLimit: 12Gi
+          - name: dshm
+            emptyDir:
+              medium: Memory
+              sizeLimit: 4Gi
